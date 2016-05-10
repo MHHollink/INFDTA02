@@ -4,7 +4,7 @@ public class ClusteringStrategy {
 
     private static ClusteringStrategy instance;
 
-    public static ClusteringStrategy get() {
+    public static ClusteringStrategy getInstance() {
         if (instance == null) {
             instance = new ClusteringStrategy();
         }
@@ -15,11 +15,12 @@ public class ClusteringStrategy {
 
     }
 
-    public void cluster(IClusteringAlgorithm algorithm, int clusters, int iterations) {
-
-
-
-        algorithm.cluster(clusters, iterations);
+    /**
+     * Use the given clustering {@param algorithm} to {@link nl.mehh.dta.algorithm.AbsClusteringAlgorithm#cluster}
+     *      the data into {@param k} amount of clusters with a maximum of {@param l} iterations
+     */
+    public void cluster(AbsClusteringAlgorithm algorithm, int k, int l) {
+        algorithm.cluster(k, l);
     }
 
 }

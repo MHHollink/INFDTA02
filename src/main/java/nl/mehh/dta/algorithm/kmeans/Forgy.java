@@ -1,23 +1,30 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
-import nl.mehh.dta.algorithm.IClusteringAlgorithm;
 
 
-public class Forgy extends AbsClusteringAlgorithm {
+public class Forgy extends AbsClusteringAlgorithm{
 
-    public IClusteringAlgorithm get() {
+    protected static Forgy instance;
+
+    public static Forgy getInstance() {
         if (instance == null) {
             instance = new Forgy();
         }
         return instance;
     }
 
-    private Forgy(){
+    /**
+     * Private constructor for Singleton purpose
+     */
+    private Forgy(){ }
 
-    }
-
-    public void cluster(int k, int i) {
-
+    /**
+     * @param k     amount of clusters
+     * @param i     amount of iterations
+     */
+    @Override
+    protected void cluster(int k, int i) {
+        // TODO: 10-5-2016
     }
 }

@@ -1,13 +1,24 @@
 package nl.mehh.dta.algorithm;
 
-public abstract class AbsClusteringAlgorithm implements IClusteringAlgorithm {
+import nl.mehh.dta.Main;
+import nl.mehh.dta.vector.WineDataVector;
 
-    protected static IClusteringAlgorithm instance;
+import java.util.Map;
 
-    protected AbsClusteringAlgorithm() {
+public abstract class AbsClusteringAlgorithm {
 
+    /**
+     * Getter to returns {@link nl.mehh.dta.Main#data}
+     */
+    protected Map<Integer, WineDataVector> getData(){
+        return Main.getInstance().getData();
     }
 
-    // TODO: 10-5-2016 get dataset method
-
+    /**
+     * Method to preform algorithm
+     *
+     * @param k     amount of clusters
+     * @param i     amount of iterations
+     */
+    abstract protected void cluster(int k, int i);
 }
