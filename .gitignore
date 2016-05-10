@@ -51,7 +51,7 @@ Temporary Items
 # IntelIJ crap
 # ====================
 
-.iml
+*.iml
 .idea/
 target/
 out/
