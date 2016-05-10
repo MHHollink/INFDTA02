@@ -5,7 +5,6 @@ import nl.mehh.dta.algorithm.kmeans.Forgy;
 import nl.mehh.dta.data.Loader;
 import nl.mehh.dta.vector.WineDataVector;
 
-import java.text.ParseException;
 import java.util.Map;
 
 public class Main {
