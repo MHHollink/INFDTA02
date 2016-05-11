@@ -5,7 +5,10 @@ import nl.mehh.dta.algorithm.kmeans.Forgy;
 import nl.mehh.dta.data.Loader;
 import nl.mehh.dta.vector.WineDataVector;
 
+import java.util.List;
 import java.util.Map;
+import nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation;
+
 
 public class Main {
 
@@ -42,15 +45,16 @@ public class Main {
      */
     public static void main(String[] args) {
         Main.getInstance().init();
+        int k = 0, l = 0;
         try {
-            int k = Integer.parseInt(args[0]);
-            int l = Integer.parseInt(args[1]);
-            Main.getInstance().start(k,l);
+            k = Integer.parseInt(args[0]);
+            l = Integer.parseInt(args[1]);
         } catch (Exception e) {
             if(args.length != 2) System.out.println("You should pass 2 Numeric arguments!");
             if(args.length == 2) System.out.println("The passed arguments should both be numbers!");
             System.exit(0);
         }
+        Main.getInstance().start(k,l);
     }
 
     /**
@@ -62,6 +66,7 @@ public class Main {
      * init method for the application, Initiates the data set
      */
     public void init() {
+        System.out.println("init");
         data = Loader.load("WineData.csv");
     }
 
@@ -69,13 +74,18 @@ public class Main {
      * start method that does everything from calculation till printing
      */
     public void start(int k, int l) {
-        // TODO: 10-5-2016
+        System.out.println("start");
 
-        ClusteringStrategy.getInstance().cluster(
+        List<Observation> observations = ClusteringStrategy.getInstance().cluster(
                 Forgy.getInstance(),
                 k,
                 l
         );
+
+        for (Observation o : observations
+             ) {
+            System.out.println(observations);
+        };
     }
 
     /**

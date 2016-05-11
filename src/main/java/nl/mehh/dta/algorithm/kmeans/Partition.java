@@ -4,6 +4,7 @@ import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
 import nl.mehh.dta.vector.WineDataVector;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -49,7 +50,7 @@ public class Partition extends AbsClusteringAlgorithm {
 
         // List of all observations
         List<Observation> observations = new ArrayList<>();
-        for(WineDataVector vector : getData ().values()) {
+        for(WineDataVector vector : getData().values()) {
             observations.add(
                 new Observation(
                     vector,

@@ -39,13 +39,14 @@ public class Forgy extends AbsClusteringAlgorithm{
     protected List<Observation> cluster(int k, int i) {
         // List of all observations
         List<Observation> observations = new ArrayList<>();
-        for(WineDataVector vector : getData ().values()) {
+        for(WineDataVector vector : getData().values()) {
             observations.add(
                     new Observation(
                             vector
                     )
             );
         }
+        System.out.println("created list of observations ["+observations.size()+"]");
 
         Set<Observation> pickedObservations = new HashSet<>();
         // List of all centroids
@@ -57,8 +58,9 @@ public class Forgy extends AbsClusteringAlgorithm{
             Observation observation = null;
             while (!picked) {
                 observation = observations.get(new Random().nextInt(observations.size()));
-                picked = pickedObservations.contains(observation);
+                picked = !pickedObservations.contains(observation);
             }
+            System.out.println("picked one!");
             pickedObservations.add(observation);
 
             for (Integer offer : observation.getData().getPoints().values()) {
@@ -67,6 +69,7 @@ public class Forgy extends AbsClusteringAlgorithm{
 
             centroids.add(centroid);
         }
+        System.out.println("created list of centroids");
 
         cluster(observations, centroids); // Initial clustering
 
