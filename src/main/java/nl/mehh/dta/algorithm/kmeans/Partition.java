@@ -34,7 +34,7 @@ public class Partition extends AbsClusteringAlgorithm {
     protected void cluster(int k, int i) {
 
         // List of all centroids
-        List<WineDataVector> centroids = new ArrayList<>();
+        List<WineDataVector> centroids = new ArrayList<>(k);
         for (int j = 0; j < k; j++) {
             WineDataVector centroid = new WineDataVector(0);
             for (int l = 0; l < 7; l++) {

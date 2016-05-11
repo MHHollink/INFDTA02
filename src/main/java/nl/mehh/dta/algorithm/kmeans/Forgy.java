@@ -1,6 +1,13 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
+import nl.mehh.dta.vector.WineDataVector;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 
 public class Forgy extends AbsClusteringAlgorithm{
@@ -27,6 +34,45 @@ public class Forgy extends AbsClusteringAlgorithm{
      */
     @Override
     protected void cluster(int k, int i) {
-        // TODO: 10-5-2016 Create centroids
+        // List of all observations
+        List<Observation> observations = new ArrayList<>();
+        for(WineDataVector vector : getData ().values()) {
+            observations.add(
+                    new Observation(
+                            vector
+                    )
+            );
+        }
+
+        Set<Observation> pickedObservations = new HashSet<>();
+        // List of all centroids
+        List<WineDataVector> centroids = new ArrayList<>(k);
+        for (int j = 0; j < k; j++) {
+            WineDataVector centroid = new WineDataVector(0);
+
+            boolean picked = false;
+            Observation observation = null;
+            while (!picked) {
+                observation = observations.get(new Random().nextInt(observations.size()));
+                picked = pickedObservations.contains(observation);
+            }
+            pickedObservations.add(observation);
+
+            for (Integer offer : observation.getData().getPoints().values()) {
+                if(offer == 1) centroid.addOffer(offer);
+            }
+
+            centroids.add(centroid);
+        }
+
+        cluster(observations, centroids); // Initial clustering
+
+        int loops = 0;
+        while (relocate(observations, centroids)) {
+            cluster(observations, centroids);
+            loops++;
+
+            if(loops > i) break;
+        }
     }
 }
