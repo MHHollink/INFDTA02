@@ -29,9 +29,12 @@ public class Partition extends AbsClusteringAlgorithm {
      *
      * @param k     amount of clusters
      * @param i     amount of iterations
+     *
+     * @return
+     *      ?
      */
     @Override
-    protected void cluster(int k, int i) {
+    protected List<Observation> cluster(int k, int i) {
 
         // List of all centroids
         List<WineDataVector> centroids = new ArrayList<>(k);
@@ -67,5 +70,6 @@ public class Partition extends AbsClusteringAlgorithm {
             if(loops > i) break;
         }
 
+        return observations;
     }
 }

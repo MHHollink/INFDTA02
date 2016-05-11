@@ -20,8 +20,11 @@ public abstract class AbsClusteringAlgorithm {
      *
      * @param k     amount of clusters
      * @param i     amount of iterations
+     *
+     * @return
+     *      ?
      */
-    abstract protected void cluster(int k, int i);
+    abstract protected List<Observation> cluster(int k, int i);
 
     // TODO: 11-5-2016 Method that divides everything into clusters
     protected boolean relocate(List<Observation> observations, List<WineDataVector> centroids) {

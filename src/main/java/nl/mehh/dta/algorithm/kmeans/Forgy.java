@@ -31,9 +31,12 @@ public class Forgy extends AbsClusteringAlgorithm{
      *
      * @param k     amount of clusters
      * @param i     amount of iterations
+     *
+     * @return
+     *      ?
      */
     @Override
-    protected void cluster(int k, int i) {
+    protected List<Observation> cluster(int k, int i) {
         // List of all observations
         List<Observation> observations = new ArrayList<>();
         for(WineDataVector vector : getData ().values()) {
@@ -74,5 +77,7 @@ public class Forgy extends AbsClusteringAlgorithm{
 
             if(loops > i) break;
         }
+
+        return observations;
     }
 }
