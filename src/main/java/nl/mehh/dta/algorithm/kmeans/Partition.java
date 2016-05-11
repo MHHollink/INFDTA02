@@ -27,6 +27,6 @@ public class Partition extends AbsClusteringAlgorithm {
      */
     @Override
     protected void cluster(int k, int i) {
-        // TODO: 10-5-2016
+        // TODO: 10-5-2016 Create centroids
     }
 }

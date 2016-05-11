@@ -46,6 +46,7 @@ public class WineDataVector {
      * sets the {@param id} to {@link nl.mehh.dta.vector.WineDataVector#TAKEN}
      */
     public void addOffer(int id) {
+        if (points.containsKey(id)) return;
         points.put(id, TAKEN);
     }
 
@@ -53,6 +54,7 @@ public class WineDataVector {
      * sets the {@param id} to {@link nl.mehh.dta.vector.WineDataVector#NOT_TAKEN}
      */
     public void removeOffer(int id) {
+        if (points.containsKey(id)) return;
         points.put(id, NOT_TAKEN);
     }
 
@@ -81,6 +83,10 @@ public class WineDataVector {
      */
     public void setCustomerIdentifier(Integer customerIdentifier) {
         this.customerIdentifier = customerIdentifier;
+    }
+
+    public Map<Integer, Integer> getPoints() {
+        return new HashMap<>(points);
     }
 
     @Override

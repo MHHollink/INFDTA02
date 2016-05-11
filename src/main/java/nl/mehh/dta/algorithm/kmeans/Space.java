@@ -1,6 +1,11 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
+import nl.mehh.dta.vector.WineDataVector;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 
 public class Space extends AbsClusteringAlgorithm {
@@ -27,9 +32,25 @@ public class Space extends AbsClusteringAlgorithm {
      */
     @Override
     protected void cluster(int k, int i) {
-        // TODO: 10-5-2016
+        List<Observation> observations = new ArrayList<>();
+        for(WineDataVector vector : getData ().values()) {
+            observations.add( new Observation(vector) );
+        }
 
+        List<WineDataVector> centroids = new ArrayList<>();
+        for (int j = 0; j < k; j++) {
+            WineDataVector centroid = new WineDataVector(0);
+            for (int l = 0; l < 7; l++) {
+                centroid.addOffer(new Random().nextInt(32));
+            }
+        }
 
+        int loops = 0;
+        while (relocate(observations, centroids)) {
+            cluster(observations, centroids);
+            loops++;
 
+            if(loops > i) break;
+        }
     }
 }
