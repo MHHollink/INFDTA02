@@ -20,11 +20,16 @@ public class Space extends AbsClusteringAlgorithm {
     private Space() { }
 
     /**
+     * This method picks K centroids which are randomly placed in the space
+     *
      * @param k     amount of clusters
      * @param i     amount of iterations
      */
     @Override
     protected void cluster(int k, int i) {
         // TODO: 10-5-2016
+
+
+
     }
 }

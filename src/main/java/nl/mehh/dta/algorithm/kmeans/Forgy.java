@@ -20,6 +20,8 @@ public class Forgy extends AbsClusteringAlgorithm{
     private Forgy(){ }
 
     /**
+     * This method picks K centroids which are placed on randomly chosen actual observations
+     *
      * @param k     amount of clusters
      * @param i     amount of iterations
      */

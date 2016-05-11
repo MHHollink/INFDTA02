@@ -20,6 +20,8 @@ public class Partition extends AbsClusteringAlgorithm {
     private Partition() { }
 
     /**
+     * This method assigns all the observations to K clusters and creates the centroids of their averages
+     *
      * @param k     amount of clusters
      * @param i     amount of iterations
      */
