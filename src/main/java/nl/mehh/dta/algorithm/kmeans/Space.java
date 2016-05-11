@@ -32,18 +32,28 @@ public class Space extends AbsClusteringAlgorithm {
      */
     @Override
     protected void cluster(int k, int i) {
-        List<Observation> observations = new ArrayList<>();
-        for(WineDataVector vector : getData ().values()) {
-            observations.add( new Observation(vector) );
-        }
 
+        // List of all centroids
         List<WineDataVector> centroids = new ArrayList<>();
         for (int j = 0; j < k; j++) {
             WineDataVector centroid = new WineDataVector(0);
             for (int l = 0; l < 7; l++) {
-                centroid.addOffer(new Random().nextInt(32));
+                centroid.addOffer(
+                        new Random().nextInt(32)
+                );
             }
         }
+
+        // List of all observations
+        List<Observation> observations = new ArrayList<>();
+        for(WineDataVector vector : getData ().values()) {
+            observations.add(
+                    new Observation(vector)
+            );
+        }
+
+
+        cluster(observations, centroids); // Initial clustering
 
         int loops = 0;
         while (relocate(observations, centroids)) {
