@@ -1,13 +1,15 @@
 package nl.mehh.dta;
 
+import nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation;
 import nl.mehh.dta.algorithm.ClusteringStrategy;
 import nl.mehh.dta.algorithm.kmeans.Forgy;
 import nl.mehh.dta.data.Loader;
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation;
 
 
 public class Main {
@@ -50,8 +52,8 @@ public class Main {
             k = Integer.parseInt(args[0]);
             l = Integer.parseInt(args[1]);
         } catch (Exception e) {
-            if(args.length != 2) System.out.println("You should pass 2 Numeric arguments!");
-            if(args.length == 2) System.out.println("The passed arguments should both be numbers!");
+            if(args.length != 2) L.w("You should pass 2 Numeric arguments!");
+            if(args.length == 2) L.w("The passed arguments should both be numbers!");
             System.exit(0);
         }
         Main.getInstance().start(k,l);
@@ -66,7 +68,7 @@ public class Main {
      * init method for the application, Initiates the data set
      */
     public void init() {
-        System.out.println("init");
+        L.i("* Initiated");
         data = Loader.load("WineData.csv");
     }
 
@@ -74,7 +76,7 @@ public class Main {
      * start method that does everything from calculation till printing
      */
     public void start(int k, int l) {
-        System.out.println("start");
+        L.i("* Started");
 
         List<Observation> observations = ClusteringStrategy.getInstance().cluster(
                 Forgy.getInstance(),
@@ -82,10 +84,12 @@ public class Main {
                 l
         );
 
-        for (Observation o : observations
-             ) {
-            System.out.println(observations);
-        };
+        Iterator<Observation> observationIterator = observations.iterator();
+        while(observationIterator.hasNext()) {
+            Observation o = observationIterator.next();
+            L.i("Customer [%d] lies in cluster [%s]", o.getData().getCustomerIdentifier(), o.getLinkedCentroid().getColor());
+        }
+
     }
 
     /**

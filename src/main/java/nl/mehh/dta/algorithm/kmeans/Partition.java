@@ -1,10 +1,11 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
+import nl.mehh.dta.util.CentroidColors;
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -38,9 +39,9 @@ public class Partition extends AbsClusteringAlgorithm {
     protected List<Observation> cluster(int k, int i) {
 
         // List of all centroids
-        List<WineDataVector> centroids = new ArrayList<>(k);
+        List<Centroid> centroids = new ArrayList<>(k);
         for (int j = 0; j < k; j++) {
-            WineDataVector centroid = new WineDataVector(0);
+            Centroid centroid = new Centroid(CentroidColors.values()[centroids.size()]);
             for (int l = 0; l < 7; l++) {
                 centroid.addOffer(
                     new Random().nextInt(32)
@@ -53,12 +54,11 @@ public class Partition extends AbsClusteringAlgorithm {
         for(WineDataVector vector : getData().values()) {
             observations.add(
                 new Observation(
-                    vector,
                     centroids.get(
                         new Random().nextInt(
                             centroids.size()
                         )
-                    )
+                    ), vector
                 )
             );
         }
@@ -70,7 +70,7 @@ public class Partition extends AbsClusteringAlgorithm {
 
             if(loops > i) break;
         }
-
+        L.i("Done in %d iterations", relocatedTimer);
         return observations;
     }
 }

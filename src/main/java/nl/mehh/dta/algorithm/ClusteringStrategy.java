@@ -1,7 +1,9 @@
 package nl.mehh.dta.algorithm;
 
-import java.util.List;
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation;
+import nl.mehh.dta.util.L;
+
+import java.util.List;
 
 public class ClusteringStrategy {
 
@@ -23,7 +25,7 @@ public class ClusteringStrategy {
      *      the data into {@param k} amount of clusters with a maximum of {@param l} iterations
      */
     public List<Observation> cluster(AbsClusteringAlgorithm algorithm, int k, int l) {
-        System.out.println("cluster with K-Means_"+algorithm.getClass().getSimpleName());
+        L.i("cluster with K-Means_%s. Using %d centroids", algorithm.getClass().getSimpleName(), k);
         return algorithm.cluster(k, l);
     }
 

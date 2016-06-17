@@ -1,6 +1,8 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
+import nl.mehh.dta.util.CentroidColors;
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
 import java.util.ArrayList;
@@ -37,9 +39,9 @@ public class Space extends AbsClusteringAlgorithm {
     protected List<Observation> cluster(int k, int i) {
 
         // List of all centroids
-        List<WineDataVector> centroids = new ArrayList<>(k);
+        List<Centroid> centroids = new ArrayList<>(k);
         for (int j = 0; j < k; j++) {
-            WineDataVector centroid = new WineDataVector(0);
+            Centroid centroid = new Centroid(CentroidColors.values()[centroids.size()]);
             for (int l = 0; l < 7; l++) {
                 centroid.addOffer(
                         new Random().nextInt(32)
@@ -65,7 +67,7 @@ public class Space extends AbsClusteringAlgorithm {
 
             if(loops > i) break;
         }
-
+        L.i("Done in %d iterations", relocatedTimer);
         return observations;
     }
 }

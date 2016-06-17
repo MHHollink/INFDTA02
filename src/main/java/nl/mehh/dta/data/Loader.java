@@ -1,5 +1,6 @@
 package nl.mehh.dta.data;
 
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
 import java.io.File;
@@ -41,7 +42,7 @@ public class Loader {
             e.printStackTrace();
             System.exit(-1);
         } catch (NullPointerException e) {
-            System.out.printf("Specified file could not be loaded, no file not found: '%s\\%s'",
+            L.e(e, "Specified file could not be loaded, no file not found: '%s\\%s'",
                     new File("src/main/resources").getAbsolutePath(), fileName);
             System.exit(-1);
         }

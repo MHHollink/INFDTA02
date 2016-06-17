@@ -8,12 +8,12 @@ public class WineDataVector {
     /**
      * Constant value for that represents the offers that are not taken by a customer
      */
-    private static final int NOT_TAKEN = 0;
+    private static final double NOT_TAKEN = 0;
 
     /**
      * Constant value for that represents the offers that are taken by a customer
      */
-    private static final int     TAKEN = 1;
+    private static final double     TAKEN = 1;
 
     /**
      * Identifier for the customer
@@ -27,7 +27,7 @@ public class WineDataVector {
      * Value    = 0: Offer not taken,
      *            1: Offer taken
      */
-    private Map<Integer, Integer> points;
+    private Map<Integer, Double> points;
 
     /**
      * Constructor for a new WineDataVector.
@@ -85,8 +85,16 @@ public class WineDataVector {
         this.customerIdentifier = customerIdentifier;
     }
 
-    public Map<Integer, Integer> getPoints() {
-        return new HashMap<>(points);
+    public Map<Integer, Double> getPoints() {
+        return points;
+    }
+
+    public double getPoint(int key){
+        return points.containsKey(key) ? points.get(key) : 0;
+    }
+
+    public void setPoints(Map<Integer, Double> points) {
+        this.points = points;
     }
 
     @Override

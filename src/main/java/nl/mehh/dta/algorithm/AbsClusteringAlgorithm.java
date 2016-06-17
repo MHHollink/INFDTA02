@@ -1,12 +1,18 @@
 package nl.mehh.dta.algorithm;
 
 import nl.mehh.dta.Main;
+import nl.mehh.dta.util.CentroidColors;
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbsClusteringAlgorithm {
+
+    public int relocatedTimer = -1;
 
     /**
      * Getter to returns {@link nl.mehh.dta.Main#data}
@@ -27,10 +33,58 @@ public abstract class AbsClusteringAlgorithm {
     abstract protected List<Observation> cluster(int k, int i);
 
     // TODO: 11-5-2016 Method that relocates the centroids (given a boolean if they are moved)
-    protected boolean relocate(List<Observation> observations, List<WineDataVector> centroids) {
-        System.out.println("relocate");
+    protected boolean relocate(List<Observation> observations, List<Centroid> centroids) {
+        L.t("relocating...");
+        relocatedTimer++;
+
+//        Map<String ,Tuple<WineDataVector, Map<Integer, Double>>> startEndDifference = new HashMap<>();
+//        for (Centroid c : centroids) {
+//            startEndDifference.put(c.getColor(), c.getPoints())
+//        }
+
+
+        // Cluster name, All observations in that cluster.
+        Map<String, List<Observation>> sortedObservations = new HashMap<>();
+        for (Observation observation : observations) {
+            String cluster = observation.getLinkedCentroid().getColor();
+            if( !sortedObservations.containsKey(cluster) ) {
+                sortedObservations.put(cluster, new ArrayList<>() );
+            }
+            sortedObservations.get(cluster).add(observation);
+        }
+
+        for (final String key : sortedObservations.keySet()) {
+            List<Observation> clusteredSetOfObservations = sortedObservations.get(key);
+
+            // Offer id, All values.
+            Map<Integer, List<Double>> offers = new HashMap<>();
+            for (Observation observation : clusteredSetOfObservations) {
+                for (int i = 0; i < 32; i++) {
+                    if(! offers.containsKey(i) )
+                        offers.put(i, new ArrayList<>());
+                    offers.get(i).add(observation.getData().getPoint(i));
+                }
+            }
+
+            Map<Integer, Double> averages = new HashMap<>();
+            for (Integer offer : offers.keySet()) {
+                averages.put(offer, calculateAverage(offers.get(offer)));
+            }
+
+            centroids.stream().filter(
+                    c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
+        }
+
 
         return true;
+    }
+
+    private double calculateAverage(List<Double> marks) {
+        int sum = 0;
+        for (int i=0; i< marks.size(); i++) {
+            sum += i;
+        }
+        return sum / marks.size();
     }
 
     /**
@@ -39,10 +93,10 @@ public abstract class AbsClusteringAlgorithm {
      * @param observations      a list containing all the {@link nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation}'s
      * @param centroids         a list containing all centroids
      */
-    protected void cluster(List<Observation> observations, List<WineDataVector> centroids) {
-        System.out.println("clustering...");
+    protected void cluster(List<Observation> observations, List<Centroid> centroids) {
+        L.t("clustering...");
         for (Observation observation : observations) {
-            observation.setLinkedCentroid(getNearestCentroid(observation,centroids));
+            observation.setLinkedCentroid(getNearestCentroid(observation, centroids));
         }
     }
 
@@ -54,17 +108,18 @@ public abstract class AbsClusteringAlgorithm {
      * @return
      *      returns the closest centroid
      */
-    private WineDataVector getNearestCentroid(Observation observation, List<WineDataVector> centroids) {
-        System.out.println("getting nearest");
+    private Centroid getNearestCentroid(Observation observation, List<Centroid> centroids) {
+        L.t("getting nearest for %d", observation.getData().getCustomerIdentifier());
         Double shortestDistance = null;
-        WineDataVector closest  = null;
-        for (WineDataVector vector : centroids) {
+        Centroid closest  = null;
+        for (Centroid vector : centroids) {
             double distance = calculateDistance(observation.getData(), vector);
             if(shortestDistance == null || shortestDistance > distance) {
                 shortestDistance = distance;
                 closest = vector;
             }
         }
+        L.d("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest.getColor());
         return closest;
     }
 
@@ -76,20 +131,20 @@ public abstract class AbsClusteringAlgorithm {
      * @return
      *      the distance between both vectors
      */
-    private double calculateDistance(WineDataVector a, WineDataVector b) {
-        System.out.println("calculating distance");
+    private double calculateDistance(WineDataVector a, Centroid b) {
         double distance = 0;
         for (Integer offerId : a.getPoints().keySet()) {
-            distance += Math.pow(a.getPoints().get(offerId) - b.getPoints().get(offerId), 2);
+            distance += Math.pow(a.getPoint(offerId) - b.getPoint(offerId), 2);
         }
-        return Math.sqrt(distance);
+        distance = Math.sqrt(distance);
+        return distance;
     }
 
     public class Observation {
-        public WineDataVector linkedCentroid;
+        public Centroid linkedCentroid;
         public WineDataVector data;
 
-        public Observation(WineDataVector linkedCentroid, WineDataVector data) {
+        public Observation(Centroid linkedCentroid, WineDataVector data) {
             this.linkedCentroid = linkedCentroid;
             this.data = data;
         }
@@ -98,11 +153,11 @@ public abstract class AbsClusteringAlgorithm {
             this.data = data;
         }
 
-        public WineDataVector getLinkedCentroid() {
+        public Centroid getLinkedCentroid() {
             return linkedCentroid;
         }
 
-        public void setLinkedCentroid(WineDataVector linkedCentroid) {
+        public void setLinkedCentroid(Centroid linkedCentroid) {
             this.linkedCentroid = linkedCentroid;
         }
 
@@ -119,5 +174,25 @@ public abstract class AbsClusteringAlgorithm {
         }
     }
 
+    public class Centroid extends WineDataVector {
+
+        private CentroidColors color;
+
+        public Centroid(CentroidColors color) {
+            super(0);
+            this.color = color;
+        }
+
+        public String getColor() {
+            return color != null ? color.name() : "NONE";
+        }
+
+        @Override
+        public String toString() {
+            return "Centroid{" +
+                    "color=" + color +
+                    "}";
+        }
+    }
 
 }

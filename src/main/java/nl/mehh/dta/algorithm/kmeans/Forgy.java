@@ -1,6 +1,8 @@
 package nl.mehh.dta.algorithm.kmeans;
 
 import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
+import nl.mehh.dta.util.CentroidColors;
+import nl.mehh.dta.util.L;
 import nl.mehh.dta.vector.WineDataVector;
 
 import java.util.ArrayList;
@@ -46,13 +48,13 @@ public class Forgy extends AbsClusteringAlgorithm{
                     )
             );
         }
-        System.out.println("created list of observations ["+observations.size()+"]");
+        L.d("created list of observations [%d]", observations.size());
 
         Set<Observation> pickedObservations = new HashSet<>();
         // List of all centroids
-        List<WineDataVector> centroids = new ArrayList<>(k);
+        List<Centroid> centroids = new ArrayList<>(k);
         for (int j = 0; j < k; j++) {
-            WineDataVector centroid = new WineDataVector(0);
+            Centroid centroid = new Centroid(CentroidColors.values()[centroids.size()]);
 
             boolean picked = false;
             Observation observation = null;
@@ -60,16 +62,15 @@ public class Forgy extends AbsClusteringAlgorithm{
                 observation = observations.get(new Random().nextInt(observations.size()));
                 picked = !pickedObservations.contains(observation);
             }
-            System.out.println("picked one!");
+            L.d("created centroid at [%s]", observation);
             pickedObservations.add(observation);
 
-            for (Integer offer : observation.getData().getPoints().values()) {
-                if(offer == 1) centroid.addOffer(offer);
-            }
+            centroid.setPoints(observation.getData().getPoints());
 
             centroids.add(centroid);
         }
-        System.out.println("created list of centroids");
+        L.i("created list of centroids");
+        L.d("%s", centroids);
 
         cluster(observations, centroids); // Initial clustering
 
@@ -80,7 +81,7 @@ public class Forgy extends AbsClusteringAlgorithm{
 
             if(loops > i) break;
         }
-
+        L.i("Done in %d iterations", relocatedTimer);
         return observations;
     }
 }
