@@ -46,7 +46,6 @@ public class WineDataVector {
      * sets the {@param id} to {@link WineDataVector#TAKEN}
      */
     public void addOffer(int id) {
-        if (points.containsKey(id)) return;
         points.put(id, TAKEN);
     }
 
@@ -54,7 +53,6 @@ public class WineDataVector {
      * sets the {@param id} to {@link WineDataVector#NOT_TAKEN}
      */
     public void removeOffer(int id) {
-        if (points.containsKey(id)) return;
         points.put(id, NOT_TAKEN);
     }
 

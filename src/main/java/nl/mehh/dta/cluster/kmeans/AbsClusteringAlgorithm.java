@@ -40,29 +40,26 @@ public abstract class AbsClusteringAlgorithm {
      */
     protected void cluster(List<Observation> observations, List<Centroid> centroids) {
         L.t("clustering...");
-        for (Observation observation : observations) {
-            observation.setLinkedCentroid(getNearestCentroid(observation, centroids));
-        }
+        observations.parallelStream().forEach(o -> o.setLinkedCentroid(getNearestCentroid(o, centroids)));
     }
 
-    // TODO: 11-5-2016 Method that relocates the centroids (given a boolean if they are moved)
     protected boolean relocate(List<Observation> observations, List<Centroid> centroids) {
         L.t("relocating...");
         relocatedTimer++;
 
-        List<Centroid> start = centroids;
+        List<Centroid> startingCentroidLocations = new ArrayList<>(centroids);
 
         // Cluster name, All observations in that cluster.
         Map<String, List<Observation>> sortedObservations = new HashMap<>();
-        for (Observation observation : observations) {
+        observations.forEach( observation -> {
             String cluster = observation.getLinkedCentroid().getColor();
-            if( !sortedObservations.containsKey(cluster) ) {
-                sortedObservations.put(cluster, new ArrayList<>() );
+            if (!sortedObservations.containsKey(cluster)) {
+                sortedObservations.put(cluster, new ArrayList<>());
             }
             sortedObservations.get(cluster).add(observation);
-        }
+        });
 
-        for (final String key : sortedObservations.keySet()) {
+        sortedObservations.keySet().forEach( key -> {
             List<Observation> clusteredSetOfObservations = sortedObservations.get(key);
 
             // Offer id, All values.
@@ -80,20 +77,29 @@ public abstract class AbsClusteringAlgorithm {
                 averages.put(offer, calculateAverage(offers.get(offer)));
             }
 
-            centroids.stream().filter(
-                    c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
-        }
+            centroids.stream().filter(c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
+        });
 
-
-        return true;
+        final boolean[] eq = {false};
+//        TODO: EVERT!
+//        centroids.forEach(centroid -> {
+//            Centroid centroidStart = startingCentroidLocations.stream().filter(
+//                    otherCentroid -> otherCentroid.getColor().equals(centroid.getColor())
+//            ).findFirst().get();
+//
+//            centroidStart.getPoints().keySet().stream().forEach(
+//                    key -> {
+//                        if (!eq[0])
+//                            eq[0] = centroid.getPoints().get(key).equals(centroidStart.getPoints().get(key));
+//                    }
+//            );
+//        });
+        return eq[0];
     }
 
+
     private double calculateAverage(List<Double> marks) {
-        int sum = 0;
-        for (int i=0; i< marks.size(); i++) {
-            sum += i;
-        }
-        return sum / marks.size();
+        return marks.stream().reduce(Double::sum).get() / marks.size();
     }
 
     /**
@@ -108,6 +114,7 @@ public abstract class AbsClusteringAlgorithm {
         L.t("getting nearest for %d", observation.getData().getCustomerIdentifier());
         Double shortestDistance = null;
         Centroid closest  = null;
+
         for (Centroid vector : centroids) {
             double distance = calculateDistance(observation.getData(), vector);
             if(shortestDistance == null || shortestDistance > distance) {

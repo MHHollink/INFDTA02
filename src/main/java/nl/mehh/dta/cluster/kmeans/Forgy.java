@@ -57,7 +57,7 @@ public class Forgy extends AbsClusteringAlgorithm {
             centroids.add(centroid);
         }
         L.i("created list of centroids");
-        L.d("%s", centroids);
+        L.i("%s", centroids);
 
         cluster(observations, centroids); // Initial clustering
 
