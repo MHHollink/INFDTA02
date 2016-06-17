@@ -39,7 +39,7 @@ public class WineDataVector {
     public WineDataVector(int cid) {
         this.customerIdentifier = cid;
         points = new HashMap<>(32);
-        for (int i = 0; i < 32; i++) points.put(i, NOT_TAKEN);
+        for (int i = 1; i <= 32; i++) points.put(i, NOT_TAKEN);
     }
 
     /**

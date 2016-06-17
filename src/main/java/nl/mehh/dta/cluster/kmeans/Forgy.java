@@ -72,6 +72,7 @@ public class Forgy extends AbsClusteringAlgorithm {
         double sse = observations.parallelStream().map(o -> Math.abs(calculateError(o))).reduce(Double::sum).get();
         L.i("Done in %d iterations", relocatedTimer);
         L.i("Calculated SSE: %f", sse);
+
         return observations;
     }
 

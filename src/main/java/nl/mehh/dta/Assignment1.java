@@ -83,7 +83,11 @@ public class Assignment1 {
                 l
         );
 
-        observations.forEach(o -> L.d("Customer [%d] lies in cluster [%s]", o.getData().getCustomerIdentifier(), o.getLinkedCentroid().getColor()));
+        observations.forEach(
+                o -> L.d("Customer [%d] lies in cluster [%s]",
+                        o.getData().getCustomerIdentifier(),
+                        o.getLinkedCentroid().getColor())
+        );
     }
 
     /**

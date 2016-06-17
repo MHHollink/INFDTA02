@@ -78,7 +78,7 @@ public abstract class AbsClusteringAlgorithm {
             // Offer id, All values.
             Map<Integer, List<Double>> offers = new HashMap<>();
             for (Observation observation : clusteredSetOfObservations) {
-                for (int i = 0; i < 32; i++) {
+                for (int i = 1; i <= 32; i++) {
                     if(! offers.containsKey(i) )
                         offers.put(i, new ArrayList<>());
                     offers.get(i).add(observation.getData().getPoint(i));
@@ -206,7 +206,8 @@ public abstract class AbsClusteringAlgorithm {
     }
 
     protected double calculateError(Observation o) {
-        return calculateDistance(o.getData(), o.getLinkedCentroid());
+        double x = calculateDistance(o.getData(), o.getLinkedCentroid());
+        return x;
     }
 
 }
