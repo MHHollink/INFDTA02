@@ -1,4 +1,4 @@
-package nl.mehh.dta.vector;
+package nl.mehh.dta.cluster.vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +32,8 @@ public class WineDataVector {
     /**
      * Constructor for a new WineDataVector.
      *
-     * Sets {@link nl.mehh.dta.vector.WineDataVector#customerIdentifier} to the {@param cid}
-     * Initialize the {@link  nl.mehh.dta.vector.WineDataVector#points} Map with a size of 32
+     * Sets {@link WineDataVector#customerIdentifier} to the {@param cid}
+     * Initialize the {@link  WineDataVector#points} Map with a size of 32
      *      and fills it with 32 items with value 0
      */
     public WineDataVector(int cid) {
@@ -43,7 +43,7 @@ public class WineDataVector {
     }
 
     /**
-     * sets the {@param id} to {@link nl.mehh.dta.vector.WineDataVector#TAKEN}
+     * sets the {@param id} to {@link WineDataVector#TAKEN}
      */
     public void addOffer(int id) {
         if (points.containsKey(id)) return;
@@ -51,7 +51,7 @@ public class WineDataVector {
     }
 
     /**
-     * sets the {@param id} to {@link nl.mehh.dta.vector.WineDataVector#NOT_TAKEN}
+     * sets the {@param id} to {@link WineDataVector#NOT_TAKEN}
      */
     public void removeOffer(int id) {
         if (points.containsKey(id)) return;
@@ -59,12 +59,12 @@ public class WineDataVector {
     }
 
     /**
-     * Checks if the {@link nl.mehh.dta.vector.WineDataVector#points} contains {@param id} and if
-     *          this id has {@link nl.mehh.dta.vector.WineDataVector#TAKEN}
+     * Checks if the {@link WineDataVector#points} contains {@param id} and if
+     *          this id has {@link WineDataVector#TAKEN}
      *
      * @return
-     *      {@link java.lang.Boolean}   : TRUE if offer == {@link nl.mehh.dta.vector.WineDataVector#TAKEN}
-     *                                  : FALSE if offer == {@link nl.mehh.dta.vector.WineDataVector#NOT_TAKEN}
+     *      {@link java.lang.Boolean}   : TRUE if offer == {@link WineDataVector#TAKEN}
+     *                                  : FALSE if offer == {@link WineDataVector#NOT_TAKEN}
      */
     public boolean hasTakenOffer(int id) {
         return (points.get(id) != null) && (points.get(id) == TAKEN);
@@ -72,14 +72,14 @@ public class WineDataVector {
 
     /**
      * @return
-     *      {@link nl.mehh.dta.vector.WineDataVector#customerIdentifier}
+     *      {@link WineDataVector#customerIdentifier}
      */
     public Integer getCustomerIdentifier() {
         return customerIdentifier;
     }
 
     /**
-     * Sets the {@link nl.mehh.dta.vector.WineDataVector#customerIdentifier} to the {@param customerIdentifier}
+     * Sets the {@link WineDataVector#customerIdentifier} to the {@param customerIdentifier}
      */
     public void setCustomerIdentifier(Integer customerIdentifier) {
         this.customerIdentifier = customerIdentifier;

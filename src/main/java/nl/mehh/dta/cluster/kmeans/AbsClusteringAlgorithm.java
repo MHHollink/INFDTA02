@@ -1,9 +1,9 @@
-package nl.mehh.dta.algorithm;
+package nl.mehh.dta.cluster.kmeans;
 
-import nl.mehh.dta.Main;
-import nl.mehh.dta.util.CentroidColors;
-import nl.mehh.dta.util.L;
-import nl.mehh.dta.vector.WineDataVector;
+import nl.mehh.dta.Assignment1;
+import nl.mehh.dta.cluster.util.CentroidColors;
+import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,10 +15,10 @@ public abstract class AbsClusteringAlgorithm {
     public int relocatedTimer = -1;
 
     /**
-     * Getter to returns {@link nl.mehh.dta.Main#data}
+     * Getter to returns {@link Assignment1#data}
      */
     protected Map<Integer, WineDataVector> getData(){
-        return Main.getInstance().getData();
+        return Assignment1.getInstance().getData();
     }
 
     /**
@@ -32,16 +32,25 @@ public abstract class AbsClusteringAlgorithm {
      */
     abstract protected List<Observation> cluster(int k, int i);
 
+    /**
+     * Given all observations, set the linked centroid to the closest one.
+     *
+     * @param observations      a list containing all the {@link AbsClusteringAlgorithm.Observation}'s
+     * @param centroids         a list containing all centroids
+     */
+    protected void cluster(List<Observation> observations, List<Centroid> centroids) {
+        L.t("clustering...");
+        for (Observation observation : observations) {
+            observation.setLinkedCentroid(getNearestCentroid(observation, centroids));
+        }
+    }
+
     // TODO: 11-5-2016 Method that relocates the centroids (given a boolean if they are moved)
     protected boolean relocate(List<Observation> observations, List<Centroid> centroids) {
         L.t("relocating...");
         relocatedTimer++;
 
-//        Map<String ,Tuple<WineDataVector, Map<Integer, Double>>> startEndDifference = new HashMap<>();
-//        for (Centroid c : centroids) {
-//            startEndDifference.put(c.getColor(), c.getPoints())
-//        }
-
+        List<Centroid> start = centroids;
 
         // Cluster name, All observations in that cluster.
         Map<String, List<Observation>> sortedObservations = new HashMap<>();
@@ -85,19 +94,6 @@ public abstract class AbsClusteringAlgorithm {
             sum += i;
         }
         return sum / marks.size();
-    }
-
-    /**
-     * Given all observations, set the linked centroid to the closest one.
-     *
-     * @param observations      a list containing all the {@link nl.mehh.dta.algorithm.AbsClusteringAlgorithm.Observation}'s
-     * @param centroids         a list containing all centroids
-     */
-    protected void cluster(List<Observation> observations, List<Centroid> centroids) {
-        L.t("clustering...");
-        for (Observation observation : observations) {
-            observation.setLinkedCentroid(getNearestCentroid(observation, centroids));
-        }
     }
 
     /**

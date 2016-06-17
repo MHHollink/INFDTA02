@@ -1,4 +1,4 @@
-package nl.mehh.dta.util;
+package nl.mehh.dta.cluster.util;
 
 import java.text.MessageFormat;
 import java.util.regex.Matcher;
@@ -15,7 +15,7 @@ public class L {
         FATAL,
         OFF
     }
-    private static LogLevel level = LogLevel.TRACE;
+    private static LogLevel level = LogLevel.INFO;
 
     // The format of the automatically created tag in each log line.
     private static final String TAG_FORMAT = "[%s] line=%d: %s#%s: ";

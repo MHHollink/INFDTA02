@@ -1,4 +1,4 @@
-package nl.mehh.dta.util;
+package nl.mehh.dta.cluster.util;
 
 /**
  * This class is a representation of a 2-Tuple. It can be used when a method needs to return 2 parameters at once.

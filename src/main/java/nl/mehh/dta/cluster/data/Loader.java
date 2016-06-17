@@ -1,7 +1,7 @@
-package nl.mehh.dta.data;
+package nl.mehh.dta.cluster.data;
 
-import nl.mehh.dta.util.L;
-import nl.mehh.dta.vector.WineDataVector;
+import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,8 +17,8 @@ public class Loader {
      * Method that loads a file from the src/main/resources with {@param fileName}
      *
      * @return
-     *      Map containing      Key     : {@link nl.mehh.dta.vector.WineDataVector#customerIdentifier}
-     *                          Value   : {@link nl.mehh.dta.vector.WineDataVector}
+     *      Map containing      Key     : {@link WineDataVector#customerIdentifier}
+     *                          Value   : {@link WineDataVector}
      */
     public static Map<Integer, WineDataVector> load(String fileName) {
         Map<Integer, WineDataVector> data = new HashMap<>();

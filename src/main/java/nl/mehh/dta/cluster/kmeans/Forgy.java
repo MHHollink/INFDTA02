@@ -1,9 +1,8 @@
-package nl.mehh.dta.algorithm.kmeans;
+package nl.mehh.dta.cluster.kmeans;
 
-import nl.mehh.dta.algorithm.AbsClusteringAlgorithm;
-import nl.mehh.dta.util.CentroidColors;
-import nl.mehh.dta.util.L;
-import nl.mehh.dta.vector.WineDataVector;
+import nl.mehh.dta.cluster.util.CentroidColors;
+import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,21 +11,9 @@ import java.util.Random;
 import java.util.Set;
 
 
-public class Forgy extends AbsClusteringAlgorithm{
+public class Forgy extends AbsClusteringAlgorithm {
 
-    protected static Forgy instance;
-
-    public static Forgy getInstance() {
-        if (instance == null) {
-            instance = new Forgy();
-        }
-        return instance;
-    }
-
-    /**
-     * Private constructor for Singleton purpose
-     */
-    private Forgy(){ }
+    public Forgy(){ }
 
     /**
      * This method picks K centroids which are placed on randomly chosen actual observations
