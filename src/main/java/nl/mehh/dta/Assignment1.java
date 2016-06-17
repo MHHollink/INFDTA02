@@ -1,12 +1,13 @@
 package nl.mehh.dta;
 
 import nl.mehh.dta.cluster.data.Loader;
-import nl.mehh.dta.cluster.kmeans.AbsClusteringAlgorithm.Observation;
+import nl.mehh.dta.cluster.kmeans.AbsClusteringAlgorithm;
 import nl.mehh.dta.cluster.kmeans.ClusteringStrategy;
 import nl.mehh.dta.cluster.kmeans.Forgy;
 import nl.mehh.dta.cluster.util.L;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,7 @@ public class Assignment1 {
      * init method for the application, Initiates the data set
      */
     public void init() {
-        L.i("* Initiated");
+        L.d("* Initiated");
         data = Loader.load("WineData.csv");
     }
 
@@ -75,19 +76,27 @@ public class Assignment1 {
      * start method that does everything from calculation till printing
      */
     public void start(int k, int l) {
-        L.i("* Started");
+        L.d("* Started");
 
-        List<Observation> observations = ClusteringStrategy.getInstance().cluster(
-                new Forgy(),
+        Forgy a = new Forgy();
+
+        List<AbsClusteringAlgorithm.Observation> observations = ClusteringStrategy.getInstance().cluster(
+                a,
                 k,
                 l
         );
 
-        observations.forEach(
-                o -> L.d("Customer [%d] lies in cluster [%s]",
-                        o.getData().getCustomerIdentifier(),
-                        o.getLinkedCentroid().getColor())
-        );
+
+        Map<Integer, Integer> timesBought = new HashMap<>();
+        // TODO calculate the list of a cluster...
+        /*
+            OFFER 3  bought 4 times
+            OFFER 2  bought 3 times
+            OFFER 1  bought 1 time
+            OFFER 4  bought 0 times
+            OFFER 5  bought 0 time
+         */
+
     }
 
     /**

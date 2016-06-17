@@ -18,7 +18,7 @@ public abstract class AbsClusteringAlgorithm {
     /**
      * Getter to returns {@link Assignment1#data}
      */
-    protected Map<Integer, WineDataVector> getData(){
+    protected Map<Integer, WineDataVector> getData() {
         return Assignment1.getInstance().getData();
     }
 
@@ -36,8 +36,8 @@ public abstract class AbsClusteringAlgorithm {
     /**
      * Given all observations, set the linked centroid to the closest one.
      *
-     * @param observations      a list containing all the {@link AbsClusteringAlgorithm.Observation}'s
-     * @param centroids         a list containing all centroids
+     * @param observations a list containing all the {@link AbsClusteringAlgorithm.Observation}'s
+     * @param centroids    a list containing all centroids
      */
     protected void cluster(List<Observation> observations, List<Centroid> centroids) {
         L.t("clustering...");
@@ -63,47 +63,57 @@ public abstract class AbsClusteringAlgorithm {
         }
 
         // Cluster name, All observations in that cluster.
-        Map<String, List<Observation>> sortedObservations = new HashMap<>();
-        observations.forEach( observation -> {
-            String cluster = observation.getLinkedCentroid().getColor();
-            if (!sortedObservations.containsKey(cluster)) {
-                sortedObservations.put(cluster, new ArrayList<>());
-            }
-            sortedObservations.get(cluster).add(observation);
-        });
+        Map<String, List<Observation>> sortedObservations = sortObservations(observations);
 
-        sortedObservations.keySet().forEach( key -> {
+        sortedObservations.keySet().forEach(key -> {
             List<Observation> clusteredSetOfObservations = sortedObservations.get(key);
 
             // Offer id, All values.
             Map<Integer, List<Double>> offers = new HashMap<>();
-            for (Observation observation : clusteredSetOfObservations) {
-                for (int i = 1; i <= 32; i++) {
-                    if(! offers.containsKey(i) )
+            clusteredSetOfObservations.forEach(observation -> {
+                for (int i = 1; i <= observation.getData().getPoints().size(); i++) {
+                    if (!offers.containsKey(i))
                         offers.put(i, new ArrayList<>());
                     offers.get(i).add(observation.getData().getPoint(i));
                 }
-            }
+            });
 
             Map<Integer, Double> averages = new HashMap<>();
-            for (Integer offer : offers.keySet()) {
+            offers.keySet().forEach(offer -> {
                 averages.put(offer, calculateAverage(offers.get(offer)));
-            }
+            });
 
             centroids.stream().filter(c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
         });
 
         return centroids.stream()
-                .map(centroid -> {
-                    return new AbstractMap.SimpleEntry<>(centroid, startingCentroidLocations.stream()
-                            .filter(cs -> cs.getColor().equals(centroid.getColor()))
-                            .findFirst().get()
-                            .getPoints().entrySet().stream()
-                            .anyMatch(p -> p.getValue() != centroid.getPoint(p.getKey())));
-                })
+                .map(centroid ->
+                        new AbstractMap.SimpleEntry<>(centroid, startingCentroidLocations.stream()
+                                .filter(
+                                        cs -> cs.getColor().equals(centroid.getColor())
+                                )
+                                .findFirst().get()
+                                .getPoints().entrySet().stream()
+                                .anyMatch(
+                                        p -> p.getValue() != centroid.getPoint(p.getKey())
+                                )
+                        )
+                )
                 .anyMatch(AbstractMap.SimpleEntry::getValue);
     }
 
+    public Map<String, List<Observation>> sortObservations(List<Observation> observations) {
+        Map<String, List<Observation>> sorted = new HashMap<>();
+        observations.forEach(
+                observation -> {
+                    String cluster = observation.getLinkedCentroid().getColor();
+                    if (!sorted.containsKey(cluster)) {
+                        sorted.put(cluster, new ArrayList<>());
+                    }
+                    sorted.get(cluster).add(observation);
+                });
+        return sorted;
+    }
 
     private double calculateAverage(List<Double> marks) {
         return marks.stream().reduce(Double::sum).get() / marks.size();
@@ -112,34 +122,32 @@ public abstract class AbsClusteringAlgorithm {
     /**
      * Using the distance from EuclideanDistance, get the closest centroid to the given observation
      *
-     * @param observation       a single observation that will look for the closest centroid
-     * @param centroids         a list of all centroids
-     * @return
-     *      returns the closest centroid
+     * @param observation a single observation that will look for the closest centroid
+     * @param centroids   a list of all centroids
+     * @return returns the closest centroid
      */
     private Centroid getNearestCentroid(Observation observation, List<Centroid> centroids) {
         L.t("getting nearest for %d", observation.getData().getCustomerIdentifier());
         Double shortestDistance = null;
-        Centroid closest  = null;
+        Centroid closest = null;
 
         for (Centroid vector : centroids) {
             double distance = calculateDistance(observation.getData(), vector);
-            if(shortestDistance == null || shortestDistance > distance) {
+            if (shortestDistance == null || shortestDistance > distance) {
                 shortestDistance = distance;
                 closest = vector;
             }
         }
-        L.d("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest.getColor());
+        L.d("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest != null ? closest.getColor() : "NONE");
         return closest;
     }
 
     /**
      * Using the EuclideanDistance, calculate the distance between 2 data objects.
      *
-     * @param a             a single vector32 (observation)
-     * @param b             a single vector32 (centroid)
-     * @return
-     *      the distance between both vectors
+     * @param a a single vector32 (observation)
+     * @param b a single vector32 (centroid)
+     * @return the distance between both vectors
      */
     private double calculateDistance(WineDataVector a, Centroid b) {
         double distance = 0;
@@ -153,11 +161,6 @@ public abstract class AbsClusteringAlgorithm {
     public class Observation {
         public Centroid linkedCentroid;
         public WineDataVector data;
-
-        public Observation(Centroid linkedCentroid, WineDataVector data) {
-            this.linkedCentroid = linkedCentroid;
-            this.data = data;
-        }
 
         public Observation(WineDataVector data) {
             this.data = data;
@@ -206,8 +209,7 @@ public abstract class AbsClusteringAlgorithm {
     }
 
     protected double calculateError(Observation o) {
-        double x = calculateDistance(o.getData(), o.getLinkedCentroid());
-        return x;
+        return calculateDistance(o.getData(), o.getLinkedCentroid());
     }
 
 }
