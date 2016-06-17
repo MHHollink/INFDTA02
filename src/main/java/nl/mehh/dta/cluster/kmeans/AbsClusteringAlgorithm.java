@@ -5,8 +5,11 @@ import nl.mehh.dta.cluster.util.CentroidColors;
 import nl.mehh.dta.cluster.util.L;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbsClusteringAlgorithm {
 
@@ -200,6 +203,10 @@ public abstract class AbsClusteringAlgorithm {
                     "color=" + color +
                     "}";
         }
+    }
+
+    protected double calculateError(Observation o) {
+        return calculateDistance(o.getData(), o.getLinkedCentroid());
     }
 
 }

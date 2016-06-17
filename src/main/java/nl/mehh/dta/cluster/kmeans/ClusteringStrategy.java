@@ -24,7 +24,7 @@ public class ClusteringStrategy {
      *      the data into {@param k} amount of clusters with a maximum of {@param l} iterations
      */
     public List<AbsClusteringAlgorithm.Observation> cluster(AbsClusteringAlgorithm algorithm, int k, int l) {
-        L.i("cluster with K-Means_%s. Using %d centroids", algorithm.getClass().getSimpleName(), k);
+        L.i("cluster with K-Means : %s. Using %d centroids", algorithm.getClass().getSimpleName(), k);
         return algorithm.cluster(k, l);
     }
 

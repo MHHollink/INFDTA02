@@ -35,7 +35,7 @@ public class Forgy extends AbsClusteringAlgorithm {
                     )
             );
         }
-        L.d("created list of observations [%d]", observations.size());
+        L.t("created list of observations [%d]", observations.size());
 
         Set<Observation> pickedObservations = new HashSet<>();
         // List of all centroids
@@ -49,15 +49,15 @@ public class Forgy extends AbsClusteringAlgorithm {
                 observation = observations.get(new Random().nextInt(observations.size()));
                 picked = !pickedObservations.contains(observation);
             }
-            L.d("created centroid at [%s]", observation);
+            L.t("created centroid at [%s]", observation);
             pickedObservations.add(observation);
 
             centroid.setPoints(observation.getData().getPoints());
 
             centroids.add(centroid);
         }
-        L.i("created list of centroids");
-        L.i("%s", centroids);
+        L.d("created list of centroids");
+        L.t("%s", centroids);
 
         cluster(observations, centroids); // Initial clustering
 
@@ -68,7 +68,12 @@ public class Forgy extends AbsClusteringAlgorithm {
 
             if(loops > i) break;
         }
+
+        double sse = observations.parallelStream().map(o -> Math.abs(calculateError(o))).reduce(Double::sum).get();
         L.i("Done in %d iterations", relocatedTimer);
+        L.i("Calculated SSE: %f", sse);
         return observations;
     }
+
+
 }
