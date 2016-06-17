@@ -5,10 +5,8 @@ import nl.mehh.dta.cluster.util.CentroidColors;
 import nl.mehh.dta.cluster.util.L;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbsClusteringAlgorithm {
 
@@ -47,7 +45,19 @@ public abstract class AbsClusteringAlgorithm {
         L.t("relocating...");
         relocatedTimer++;
 
-        List<Centroid> startingCentroidLocations = new ArrayList<>(centroids);
+        List<Centroid> startingCentroidLocations = new ArrayList<>();
+        for (Centroid centroid : centroids) {
+            Centroid newCentroid = new Centroid(centroid.color);
+            newCentroid.setCustomerIdentifier(centroid.getCustomerIdentifier());
+            Map<Integer, Double> points = new HashMap<>();
+
+            for (Map.Entry<Integer, Double> entry : centroid.getPoints().entrySet()) {
+                points.put(entry.getKey(), entry.getValue());
+            }
+            newCentroid.setPoints(points);
+
+            startingCentroidLocations.add(newCentroid);
+        }
 
         // Cluster name, All observations in that cluster.
         Map<String, List<Observation>> sortedObservations = new HashMap<>();
@@ -80,21 +90,15 @@ public abstract class AbsClusteringAlgorithm {
             centroids.stream().filter(c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
         });
 
-        final boolean[] eq = {false};
-//        TODO: EVERT!
-//        centroids.forEach(centroid -> {
-//            Centroid centroidStart = startingCentroidLocations.stream().filter(
-//                    otherCentroid -> otherCentroid.getColor().equals(centroid.getColor())
-//            ).findFirst().get();
-//
-//            centroidStart.getPoints().keySet().stream().forEach(
-//                    key -> {
-//                        if (!eq[0])
-//                            eq[0] = centroid.getPoints().get(key).equals(centroidStart.getPoints().get(key));
-//                    }
-//            );
-//        });
-        return eq[0];
+        return centroids.stream()
+                .map(centroid -> {
+                    return new AbstractMap.SimpleEntry<>(centroid, startingCentroidLocations.stream()
+                            .filter(cs -> cs.getColor().equals(centroid.getColor()))
+                            .findFirst().get()
+                            .getPoints().entrySet().stream()
+                            .anyMatch(p -> p.getValue() != centroid.getPoint(p.getKey())));
+                })
+                .anyMatch(AbstractMap.SimpleEntry::getValue);
     }
 
 
