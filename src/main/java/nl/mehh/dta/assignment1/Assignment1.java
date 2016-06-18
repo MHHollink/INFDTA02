@@ -1,11 +1,10 @@
-package nl.mehh.dta;
+package nl.mehh.dta.assignment1;
 
 import nl.mehh.dta.cluster.data.Loader;
 import nl.mehh.dta.cluster.kmeans.AbsClusteringAlgorithm;
 import nl.mehh.dta.cluster.kmeans.ClusteringStrategy;
 import nl.mehh.dta.cluster.kmeans.Forgy;
 import nl.mehh.dta.cluster.util.L;
-import nl.mehh.dta.cluster.util.Tuple;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;

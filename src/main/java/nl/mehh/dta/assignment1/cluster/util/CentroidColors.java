@@ -1,4 +1,4 @@
-package nl.mehh.dta.cluster.util;
+package nl.mehh.dta.assignment1.cluster.util;
 
 /**
  * Created by Marcel on 17-5-2016.

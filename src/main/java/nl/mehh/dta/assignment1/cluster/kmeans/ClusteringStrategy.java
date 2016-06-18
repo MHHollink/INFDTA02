@@ -1,4 +1,4 @@
-package nl.mehh.dta.cluster.kmeans;
+package nl.mehh.dta.assignment1.cluster.kmeans;
 
 import nl.mehh.dta.cluster.util.L;
 import nl.mehh.dta.cluster.util.Tuple;
