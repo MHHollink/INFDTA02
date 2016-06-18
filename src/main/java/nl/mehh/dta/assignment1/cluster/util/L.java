@@ -1,4 +1,4 @@
-package nl.mehh.dta.cluster.util;
+package nl.mehh.dta.assignment1.cluster.util;
 
 import java.text.MessageFormat;
 import java.util.regex.Matcher;

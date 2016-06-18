@@ -1,7 +1,7 @@
-package nl.mehh.dta.cluster.data;
+package nl.mehh.dta.assignment1.cluster.data;
 
-import nl.mehh.dta.cluster.util.L;
-import nl.mehh.dta.cluster.vector.WineDataVector;
+import nl.mehh.dta.assignment1.cluster.util.L;
+import nl.mehh.dta.assignment1.cluster.vector.WineDataVector;
 
 import java.io.File;
 import java.io.FileNotFoundException;

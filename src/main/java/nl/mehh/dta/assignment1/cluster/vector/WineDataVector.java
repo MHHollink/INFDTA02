@@ -1,4 +1,4 @@
-package nl.mehh.dta.cluster.vector;
+package nl.mehh.dta.assignment1.cluster.vector;
 
 import java.util.HashMap;
 import java.util.Map;
