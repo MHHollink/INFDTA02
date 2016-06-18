@@ -2,6 +2,7 @@ package nl.mehh.dta.cluster.kmeans;
 
 import nl.mehh.dta.cluster.util.CentroidColors;
 import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.util.Tuple;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;
@@ -25,7 +26,8 @@ public class Forgy extends AbsClusteringAlgorithm {
      *      ?
      */
     @Override
-    protected List<Observation> cluster(int k, int i) {
+    protected Tuple<Double, List<Observation>> cluster(int k, int i) {
+        relocatedTimer = -1;
         // List of all observations
         List<Observation> observations = new ArrayList<>();
         for(WineDataVector vector : getData().values()) {
@@ -56,7 +58,7 @@ public class Forgy extends AbsClusteringAlgorithm {
 
             centroids.add(centroid);
         }
-        L.d("created list of centroids");
+        L.t("created list of centroids");
         L.t("%s", centroids);
 
         cluster(observations, centroids); // Initial clustering
@@ -70,10 +72,10 @@ public class Forgy extends AbsClusteringAlgorithm {
         }
 
         double sse = observations.parallelStream().map(o -> Math.abs(calculateError(o))).reduce(Double::sum).get();
-        L.i("Done in %d iterations", relocatedTimer);
+        L.d("Done in %d iterations", relocatedTimer);
         L.i("Calculated SSE: %f", sse);
 
-        return observations;
+        return new Tuple<>(sse, observations);
     }
 
 

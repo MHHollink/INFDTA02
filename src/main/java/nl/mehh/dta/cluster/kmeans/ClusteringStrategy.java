@@ -1,6 +1,7 @@
 package nl.mehh.dta.cluster.kmeans;
 
 import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.util.Tuple;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class ClusteringStrategy {
      * Use the given clustering {@param algorithm} to {@link AbsClusteringAlgorithm#cluster}
      *      the data into {@param k} amount of clusters with a maximum of {@param l} iterations
      */
-    public List<AbsClusteringAlgorithm.Observation> cluster(AbsClusteringAlgorithm algorithm, int k, int l) {
+    public Tuple<Double, List<AbsClusteringAlgorithm.Observation>> cluster(AbsClusteringAlgorithm algorithm, int k, int l) {
         L.i("cluster with K-Means : %s. Using %d centroids", algorithm.getClass().getSimpleName(), k);
         return algorithm.cluster(k, l);
     }

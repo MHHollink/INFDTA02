@@ -5,8 +5,10 @@ import nl.mehh.dta.cluster.kmeans.AbsClusteringAlgorithm;
 import nl.mehh.dta.cluster.kmeans.ClusteringStrategy;
 import nl.mehh.dta.cluster.kmeans.Forgy;
 import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.util.Tuple;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,28 +77,49 @@ public class Assignment1 {
     /**
      * start method that does everything from calculation till printing
      */
-    public void start(int k, int l) {
+    public void start(int k, int iterations) {
         L.d("* Started");
 
-        Forgy a = new Forgy();
+        Forgy algorithm = new Forgy();
 
-        List<AbsClusteringAlgorithm.Observation> observations = ClusteringStrategy.getInstance().cluster(
-                a,
-                k,
-                l
-        );
+        Tuple<Double, List<AbsClusteringAlgorithm.Observation>> observations = null;
+        List<Tuple<Double, List<AbsClusteringAlgorithm.Observation>>> ob = new ArrayList<>();
+
+        for (int i = 0; i < iterations; i++) {
+            ob.add(
+                    ClusteringStrategy.getInstance().cluster(
+                        algorithm,
+                        k,
+                        100
+                    )
+            );
+        }
+
+        for (Tuple<Double, List<AbsClusteringAlgorithm.Observation>> o : ob) {
+            if(observations == null || observations.getK()>o.getK())
+                observations = o;
+        }
+        L.i("Using cluster with SSE: %f", observations.getK());
 
 
-        Map<Integer, Integer> timesBought = new HashMap<>();
-        // TODO calculate the list of a cluster...
-        /*
-            OFFER 3  bought 4 times
-            OFFER 2  bought 3 times
-            OFFER 1  bought 1 time
-            OFFER 4  bought 0 times
-            OFFER 5  bought 0 time
-         */
-
+        Map<String, List<AbsClusteringAlgorithm.Observation> > sortedObservations = algorithm.sortObservations(observations.getV());
+        sortedObservations.keySet().forEach(cluster -> {
+            Map<Integer, Integer> count = new HashMap<>();
+            sortedObservations.get(cluster).forEach(observation ->
+                    observation.getData().getPoints().keySet().forEach(offer -> {
+                        if (observation.getData().hasTakenOffer(offer)) {
+                            count.put(
+                                    offer,
+                                    count.containsKey(offer) ?
+                                            count.get(offer) + 1 : 1
+                            );
+                        }
+                    })
+            );
+            count.keySet().forEach(offerKey -> {
+                L.i("[%s] OFFER %d -> bought %d times", cluster, offerKey, count.get(offerKey));
+            });
+        });
     }
 
     /**

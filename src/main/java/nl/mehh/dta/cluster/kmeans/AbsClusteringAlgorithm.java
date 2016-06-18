@@ -3,6 +3,7 @@ package nl.mehh.dta.cluster.kmeans;
 import nl.mehh.dta.Assignment1;
 import nl.mehh.dta.cluster.util.CentroidColors;
 import nl.mehh.dta.cluster.util.L;
+import nl.mehh.dta.cluster.util.Tuple;
 import nl.mehh.dta.cluster.vector.WineDataVector;
 
 import java.util.AbstractMap;
@@ -29,9 +30,9 @@ public abstract class AbsClusteringAlgorithm {
      * @param i     amount of iterations
      *
      * @return
-     *      ?
+     *      Tuple with SSE and Observations
      */
-    abstract protected List<Observation> cluster(int k, int i);
+    abstract protected Tuple<Double, List<Observation>> cluster(int k, int i);
 
     /**
      * Given all observations, set the linked centroid to the closest one.
@@ -138,7 +139,7 @@ public abstract class AbsClusteringAlgorithm {
                 closest = vector;
             }
         }
-        L.d("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest != null ? closest.getColor() : "NONE");
+        L.t("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest != null ? closest.getColor() : "NONE");
         return closest;
     }
 
