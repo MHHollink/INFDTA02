@@ -1,7 +1,8 @@
 package nl.mehh.dta.assignment1.cluster.kmeans;
 
-import nl.mehh.dta.cluster.util.L;
-import nl.mehh.dta.cluster.util.Tuple;
+
+import nl.mehh.dta.assignment1.cluster.util.L;
+import nl.mehh.dta.assignment1.cluster.util.Tuple;
 
 import java.util.List;
 

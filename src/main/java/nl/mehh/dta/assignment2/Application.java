@@ -1,8 +1,8 @@
 package nl.mehh.dta.assignment2;
 
+import nl.mehh.dta.assignment2.algoritm.GeneticAlgoritm;
 import nl.mehh.dta.assignment2.models.Individual;
 import nl.mehh.dta.assignment2.models.Tuple;
-import nl.mehh.dta.assignment2.algoritm.GeneticAlgoritm;
 
 import java.util.Random;
 
@@ -34,7 +34,7 @@ public class Application<T> {
                 },
                 (individuals, fitnesses) ->
                         () -> {
-                            return new Tuple<Individual<Byte>, Individual<Byte>>(individuals.get(r.nextInt(individuals.size()-1)), individuals.get(r.nextInt(individuals.size()-1)));
+                            return new Tuple<>(individuals.get(r.nextInt(individuals.size() - 1)), individuals.get(r.nextInt(individuals.size() - 1)));
                         },
                 tuple -> {
                     Byte byte1 = tuple.getKey().getValue();
@@ -43,7 +43,7 @@ public class Application<T> {
                     int child1 = ((byte1 >>> 4 << 4) | (byte2 & 0x0F));
                     int child2 = ((byte2 >>> 4 << 4) | (byte1 & 0x0F));
 
-                    return new Tuple<Individual<Byte>, Individual<Byte>>(new Individual<Byte>((byte) child1), new Individual<Byte>((byte) child2));
+                    return new Tuple<>(new Individual<>((byte) child1), new Individual<>((byte) child2));
                 },
                 (individual, mutationrate) -> individual
             );

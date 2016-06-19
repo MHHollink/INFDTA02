@@ -1,7 +1,5 @@
 package nl.mehh.dta.assignment2.models;
 
-import java.util.function.Supplier;
-
 public class Individual<T> {
     private T value;
 

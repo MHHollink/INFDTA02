@@ -1,10 +1,11 @@
 package nl.mehh.dta.assignment1.cluster.kmeans;
 
-import nl.mehh.dta.Assignment1;
-import nl.mehh.dta.cluster.util.CentroidColors;
-import nl.mehh.dta.cluster.util.L;
-import nl.mehh.dta.cluster.util.Tuple;
-import nl.mehh.dta.cluster.vector.WineDataVector;
+
+import nl.mehh.dta.assignment1.Assignment1;
+import nl.mehh.dta.assignment1.cluster.util.CentroidColors;
+import nl.mehh.dta.assignment1.cluster.util.L;
+import nl.mehh.dta.assignment1.cluster.util.Tuple;
+import nl.mehh.dta.assignment1.cluster.vector.WineDataVector;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
