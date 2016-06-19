@@ -11,4 +11,5 @@ import java.util.Map;
 public interface SmoothingAlgorithm {
     Map<? extends Number, ? extends Number> generateSmoothedValues();
     double calculateError();
+    void printPrediction();
 }

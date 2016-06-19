@@ -1,6 +1,8 @@
 package nl.mehh.dta.assignment3.prediction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,18 +18,21 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
     int startOffset;
     double dataSmoothingFactor;
     int forecastUntilStep;
+    int lastStep;
+    List<String> printables;
 
     public SimpleExponentialSmoothing(Map<Integer, Double> values, int startOffset, double dataSmoothingFactor, int forecastUntilStep) {
         this.values = values;
         this.startOffset = startOffset;
         this.dataSmoothingFactor = dataSmoothingFactor;
         this.forecastUntilStep = forecastUntilStep;
+
+        printables = new ArrayList<>();
     }
 
     @Override
     public Map<Integer, Double> generateSmoothedValues() {
         if(smoothedValues != null) return smoothedValues;
-
 
         Map<Integer, Double> SESValues = new HashMap<>();
         double avgOfStartOffset = 0;
@@ -46,7 +51,7 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
         int lastStep = SESValues.size();
         for (int i = lastStep; i <= forecastUntilStep; i++) {
             SESValues.put(i, SESValues.get(lastStep));
-            System.out.println("SES - Forecasted value of step " + i + ": " + SESValues.get(lastStep));
+            printables.add("SES - Forecasted value of step " + i + ": " + SESValues.get(lastStep));
         }
 
         smoothedValues = SESValues;
@@ -54,13 +59,22 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
     }
 
     @Override
+    public void printPrediction() {
+        printables.forEach(System.out::println);
+    }
+
+    @Override
     public double calculateError() {
         if(smoothedValues == null) generateSmoothedValues();
-        return smoothedValues.keySet().stream().map(
-                key -> values.containsKey(key) && smoothedValues.containsKey(key) ?
-                        Math.pow(values.get(key),2)+Math.pow(smoothedValues.get(key),2) :
-                        0
-        ).reduce(Double::sum).get();
+        double error = 0;
+        int valueCount = 0;
+        for (Integer key : values.keySet()) {
+            if (values.containsKey(key) && smoothedValues.containsKey(key)) {
+                error += Math.pow(values.get(key) - smoothedValues.get(key),2);
+                valueCount++;
+            }
+        }
+        return Math.sqrt(error / valueCount);
     }
 
 

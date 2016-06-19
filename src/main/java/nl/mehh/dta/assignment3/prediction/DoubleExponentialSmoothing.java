@@ -1,6 +1,8 @@
 package nl.mehh.dta.assignment3.prediction;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,12 +18,15 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
     double dataSmoothingFactor;
     double trendSmoothingFactor;
     int forecastUntilStep;
+    List<String> printables;
 
     public DoubleExponentialSmoothing(Map<Integer, Double> values, double dataSmoothingFactor, double trendSmoothingFactor, int forecastUntilStep) {
         this.values = values;
         this.dataSmoothingFactor = dataSmoothingFactor;
         this.trendSmoothingFactor = trendSmoothingFactor;
         this.forecastUntilStep = forecastUntilStep;
+
+        printables = new ArrayList<>();
     }
 
 
@@ -60,13 +65,13 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
         }
 
         forecastValues.put(lastsT+1, sTValues.get(lastsT)-trendValues.get(lastbT));
-        System.out.println("DES - Forecasted value of step " + lastsT+1 + ": " + forecastValues.get(lastForecast+1));
+        printables.add("DES - Forecasted value of step " + lastsT+1 + ": " + forecastValues.get(lastForecast+1));
         for (int i = lastForecast+1; i <= forecastUntilStep; i++) {
             int stepDiff = i-lastsT;
             double forecast = sTValues.get(lastsT)+(stepDiff*trendValues.get(lastbT));
 
             forecastValues.put(i, forecast);
-            System.out.println("DES - Forecasted value of step " + i + ": " + forecast);
+            printables.add("DES - Forecasted value of step " + i + ": " + forecast);
         }
 
         smoothedValues = forecastValues;
@@ -74,13 +79,22 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
     }
 
     @Override
+    public void printPrediction() {
+        printables.forEach(System.out::println);
+    }
+
+    @Override
     public double calculateError() {
         if(smoothedValues == null) generateSmoothedValues();
-        return smoothedValues.keySet().stream().map(
-                key -> values.containsKey(key) && smoothedValues.containsKey(key) ?
-                        Math.pow(values.get(key),2)+Math.pow(smoothedValues.get(key),2) :
-                        0
-        ).reduce(Double::sum).get();
+        double error = 0;
+        int valueCount = 0;
+        for (Integer key : values.keySet()) {
+            if (values.containsKey(key) && smoothedValues.containsKey(key)) {
+                error += Math.pow(values.get(key) - smoothedValues.get(key),2);
+                valueCount++;
+            }
+        }
+        return Math.sqrt(error / valueCount);
     }
 
 }

@@ -5,6 +5,8 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import nl.mehh.dta.assignment3.App;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,9 +26,26 @@ public class ChartController {
         chart.setTitle("Demand of Swords over time");
         chart.getData().add(createSeries(App.getData(), "Swords"));
 
-        SimpleExponentialSmoothing ses = new SimpleExponentialSmoothing(App.getData(), 12, 0.6, 48);
-        DoubleExponentialSmoothing des = new DoubleExponentialSmoothing(App.getData(), 0.6, 0.2, 48);
+        List<SimpleExponentialSmoothing> sesSmoothings = new ArrayList<>();
+        List<DoubleExponentialSmoothing> desSmoothings = new ArrayList<>();
+        for (int i = 0; i < 200; i++) {
+            sesSmoothings.add(new SimpleExponentialSmoothing(App.getData(), 12, 0.005*i, 48));
+            for (int j = 0; j < 200; j++) {
+                desSmoothings.add(new DoubleExponentialSmoothing(App.getData(), 0.005*i, 0.005*j, 48));
+            }
+        }
 
+        SimpleExponentialSmoothing ses = sesSmoothings.stream().sorted(
+                (a, b) -> a.calculateError() < b.calculateError() ? -1 : 1)
+                .findFirst().get();
+        System.out.println(ses.calculateError());
+
+        DoubleExponentialSmoothing des = null;
+        for (DoubleExponentialSmoothing desSmoothing : desSmoothings) {
+            if(des == null || des.calculateError() > desSmoothing.calculateError())
+                des = desSmoothing;
+        }
+        assert des != null;
         System.out.println(des.calculateError());
 
         chart.getData().add(createSeries(ses.generateSmoothedValues(), "SES"));
