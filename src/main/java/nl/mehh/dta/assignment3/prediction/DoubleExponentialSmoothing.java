@@ -83,6 +83,7 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
         printables.forEach(System.out::println);
     }
 
+    // TODO: 19-6-2016 Fix this error thingy, not correct formula!
     @Override
     public double calculateError() {
         if(smoothedValues == null) generateSmoothedValues();
