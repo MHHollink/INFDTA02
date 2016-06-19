@@ -47,7 +47,7 @@ public class App extends Application {
     private static Map<Integer, Double> parseFile(String file) {
         Map<Integer, Double> values = new HashMap<>();
         try {
-            try(Scanner scanner = new Scanner(new File(App.class.getClassLoader().getResource(file).getFile()))) {
+            try(Scanner scanner = new Scanner(new File(App.class.getClassLoader().getResource(file).getFile().replaceAll("%20"," ")))) {
                 int i = 0;
                 while(scanner.hasNextDouble()) {
                     i++;
