@@ -33,13 +33,7 @@ public class ChartController {
     private XYChart.Series<Integer, Double> createSeries(Map<Integer, Double> values){
         XYChart.Series<Integer, Double> series = new XYChart.Series<>();
 
-        for (Integer i : values.keySet()) {
-            series.getData().add(new XYChart.Data<>(i, values.get(i)));
-        }
-
-//        values.keySet().forEach( key -> {
-//            series.getData().add(new XYChart.Data<>(key, values.get(key)));
-//        });
+        values.keySet().forEach( key -> series.getData().add(new XYChart.Data<>(key, values.get(key))));
 
         return series;
     }
