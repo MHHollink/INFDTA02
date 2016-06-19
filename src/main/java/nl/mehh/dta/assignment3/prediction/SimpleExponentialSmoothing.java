@@ -69,8 +69,16 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
         double error = 0;
         int valueCount = 0;
         for (Integer key : values.keySet()) {
-            if (values.containsKey(key) && smoothedValues.containsKey(key)) {
-                error += Math.pow(values.get(key) - smoothedValues.get(key),2);
+            if (
+                    values.containsKey(key-1) &&
+                    values.containsKey(key) &&
+                            smoothedValues.containsKey(key-1))
+            {
+
+                double st = (dataSmoothingFactor*values.get(key-1)) + ((1-dataSmoothingFactor) * smoothedValues.get(key-1));
+                double x = values.get(key);
+
+                error += Math.pow(st-x,2);
                 valueCount++;
             }
         }
