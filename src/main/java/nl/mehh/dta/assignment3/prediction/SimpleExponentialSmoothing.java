@@ -6,5 +6,5 @@ package nl.mehh.dta.assignment3.prediction;
  * @author Marcel
  * @since 19-6-2016.
  */
-public class Double {
+public class SimpleExponentialSmoothing {
 }
