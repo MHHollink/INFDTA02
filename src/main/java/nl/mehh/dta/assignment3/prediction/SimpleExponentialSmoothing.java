@@ -9,17 +9,17 @@ import java.util.Map;
  * TODO: Write class level documentation
  *
  * @author Marcel
+ * @author Evert-Jan
  * @since 19-6-2016.
  */
 public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
-
-    Map<Integer, Double> values;
-    Map<Integer, Double> smoothedValues;
-    int startOffset;
-    double dataSmoothingFactor;
-    int forecastUntilStep;
-    int lastStep;
-    List<String> printables;
+    private Map<Integer, Double> values;
+    private Map<Integer, Double> smoothedValues;
+    private int startOffset;
+    private double dataSmoothingFactor;
+    private int forecastUntilStep;
+    private List<String> printables;
+    private double calculatedError;
 
     public SimpleExponentialSmoothing(Map<Integer, Double> values, int startOffset, double dataSmoothingFactor, int forecastUntilStep) {
         this.values = values;
@@ -48,7 +48,7 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
             SESValues.put(i, sT);
         }
 
-        int lastStep = SESValues.size();
+        int lastStep = SESValues.entrySet().stream().sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey())).findFirst().get().getKey();
         for (int i = lastStep; i <= forecastUntilStep; i++) {
             SESValues.put(i, SESValues.get(lastStep));
             printables.add("SES - Forecasted value of step " + i + ": " + SESValues.get(lastStep));
@@ -65,25 +65,27 @@ public class SimpleExponentialSmoothing implements SmoothingAlgorithm {
 
     @Override
     public double calculateError() {
-        if(smoothedValues == null) generateSmoothedValues();
-        double error = 0;
-        int valueCount = 0;
-        for (Integer key : values.keySet()) {
-            if (
-                    values.containsKey(key-1) &&
-                    values.containsKey(key) &&
-                            smoothedValues.containsKey(key-1))
-            {
+        if(smoothedValues == null)
+            generateSmoothedValues();
 
-                double st = (dataSmoothingFactor*values.get(key-1)) + ((1-dataSmoothingFactor) * smoothedValues.get(key-1));
-                double x = values.get(key);
+        double error = smoothedValues.entrySet().stream()
+                .filter(entry -> values.containsKey(entry.getKey()))
+                .map(entry -> Math.pow(entry.getValue()-values.get(entry.getKey()), 2))
+                .reduce(0.0, (partialResult, nextElem) -> partialResult+nextElem);
 
-                error += Math.pow(st-x,2);
-                valueCount++;
-            }
-        }
-        return Math.sqrt(error / valueCount);
+        int valueCount = (int)smoothedValues.entrySet().stream()
+                .filter(entry -> values.containsKey(entry.getKey()))
+                .count();
+
+        calculatedError = Math.sqrt(error/valueCount-1);
+        return calculatedError;
     }
 
+    public double getCalculatedError() {
+        return calculatedError;
+    }
 
+    public double getDataSmoothingFactor() {
+        return dataSmoothingFactor;
+    }
 }

@@ -1,24 +1,26 @@
 package nl.mehh.dta.assignment3.prediction;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * TODO: Write class level documentation
  *
  * @author Marcel
+ * @author Evert-Jan
  * @since 19-6-2016.
  */
 public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
 
-    Map<Integer, Double> values;
-    Map<Integer, Double> smoothedValues;
-    double dataSmoothingFactor;
-    double trendSmoothingFactor;
-    int forecastUntilStep;
-    List<String> printables;
+    private Map<Integer, Double> values;
+    private double dataSmoothingFactor;
+    private double trendSmoothingFactor;
+    private int forecastUntilStep;
+    private List<String> printables;
+    private double calculatedError;
+
+    private Map<Integer, Double> sTValues;
+    private Map<Integer, Double> trendValues;
+    private Map<Integer, Double> forecastValues;
 
     public DoubleExponentialSmoothing(Map<Integer, Double> values, double dataSmoothingFactor, double trendSmoothingFactor, int forecastUntilStep) {
         this.values = values;
@@ -26,17 +28,17 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
         this.trendSmoothingFactor = trendSmoothingFactor;
         this.forecastUntilStep = forecastUntilStep;
 
-        printables = new ArrayList<>();
+        printables      = new ArrayList<>();
+        sTValues        = new HashMap<>();
+        trendValues     = new HashMap<>();
+        forecastValues  = new HashMap<>();
     }
 
 
     @Override
     public Map<Integer, Double> generateSmoothedValues() {
-        if(smoothedValues != null) return smoothedValues;
-
-        Map<Integer, Double> sTValues = new LinkedHashMap<>();
-        Map<Integer, Double> trendValues = new LinkedHashMap<>();
-        Map<Integer, Double> forecastValues = new LinkedHashMap<>();
+        if(!forecastValues.isEmpty())
+            return forecastValues;
 
         sTValues.put(2, values.get(2));
         trendValues.put(2, values.get(2)-values.get(1));
@@ -50,19 +52,20 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
             forecastValues.put(i, fT);
         }
 
-        int lastForecast = 0;
-        for (Map.Entry<Integer, Double> entry : forecastValues.entrySet()) {
-            lastForecast = entry.getKey();
-        }
-        int lastsT = 0;
-        for (Map.Entry<Integer, Double> entry : sTValues.entrySet()) {
-            lastsT = entry.getKey();
-        }
+        int lastForecast = forecastValues.entrySet().stream()
+                .sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
+                .findFirst()
+                .get().getKey();
 
-        int lastbT = 0;
-        for (Map.Entry<Integer, Double> entry : trendValues.entrySet()) {
-            lastbT = entry.getKey();
-        }
+        int lastsT = sTValues.entrySet().stream()
+                .sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
+                .findFirst()
+                .get().getKey();
+
+        int lastbT = trendValues.entrySet().stream()
+                .sorted((o1, o2) -> o2.getKey().compareTo(o1.getKey()))
+                .findFirst()
+                .get().getKey();
 
         forecastValues.put(lastsT+1, sTValues.get(lastsT)-trendValues.get(lastbT));
         printables.add("DES - Forecasted value of step " + lastsT+1 + ": " + forecastValues.get(lastForecast+1));
@@ -74,7 +77,6 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
             printables.add("DES - Forecasted value of step " + i + ": " + forecast);
         }
 
-        smoothedValues = forecastValues;
         return forecastValues;
     }
 
@@ -83,28 +85,32 @@ public class DoubleExponentialSmoothing implements SmoothingAlgorithm {
         printables.forEach(System.out::println);
     }
 
-    // TODO: 19-6-2016 Fix this error thingy, not correct formula!
     @Override
     public double calculateError() {
-        if(smoothedValues == null) generateSmoothedValues();
-        double error = 0;
-        int valueCount = 0;
-        for (Integer key : values.keySet()) {
-            if (
-                    values.containsKey(key-1) &&
-                            values.containsKey(key) &&
-                            smoothedValues.containsKey(key-1))
-            {
-                // TODO: 19-6-2016 berekening van Bt.
-                //double bt = trendSmoothingFactor * (smoothedValues.get(key) - smoothedValues.get(key - 1)) ...
-                double st = (dataSmoothingFactor*values.get(key-1)) + ((1-dataSmoothingFactor) * smoothedValues.get(key-1));
-                double x = values.get(key);
+        if(forecastValues.isEmpty())
+            generateSmoothedValues();
 
-                error += Math.pow(st-x,2);
-                valueCount++;
-            }
-        }
-        return Math.sqrt(error / valueCount);
+        int valueCount = (int)forecastValues.entrySet().stream().filter(entry -> values.containsKey(entry.getKey())).count();
+        double error = forecastValues.entrySet().stream()
+                .filter(entry -> values.containsKey(entry.getKey()))
+                .map(entry -> {
+                    return Math.pow(entry.getValue()-values.get(entry.getKey()), 2);
+                })
+                .reduce(0.0, (partialResult, nextElem) -> partialResult+nextElem);
+
+        calculatedError = Math.sqrt(error/valueCount-2);
+        return calculatedError;
     }
 
+    public double getDataSmoothingFactor() {
+        return dataSmoothingFactor;
+    }
+
+    public double getTrendSmoothingFactor() {
+        return trendSmoothingFactor;
+    }
+
+    public double getCalculatedError() {
+        return calculatedError;
+    }
 }

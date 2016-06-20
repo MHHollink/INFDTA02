@@ -1,5 +1,7 @@
 package nl.mehh.dta.assignment3.prediction;
 
+import nl.mehh.dta.assignment2.models.Tuple;
+
 import java.util.Map;
 
 /**

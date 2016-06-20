@@ -1,13 +1,21 @@
 package nl.mehh.dta.assignment3.prediction;
 
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ObservableListValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import nl.mehh.dta.assignment3.App;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * TODO: Write class level documentation
@@ -35,18 +43,18 @@ public class ChartController {
             }
         }
 
-        SimpleExponentialSmoothing ses = sesSmoothings.stream().sorted(
-                (a, b) -> a.calculateError() < b.calculateError() ? -1 : 1)
+        SimpleExponentialSmoothing ses = sesSmoothings.stream()
+                .sorted((o1, o2) -> ((Double)o1.calculateError()).compareTo((Double)o2.calculateError()))
                 .findFirst().get();
-        System.out.println(ses.calculateError());
+        System.out.println("Lowest calculated error for SES: " + ses.getCalculatedError() + " with smoothing factor " + ses.getDataSmoothingFactor());
+        ses.printPrediction();
 
-        DoubleExponentialSmoothing des = null;
-        for (DoubleExponentialSmoothing desSmoothing : desSmoothings) {
-            if(des == null || des.calculateError() > desSmoothing.calculateError())
-                des = desSmoothing;
-        }
-        assert des != null;
-        System.out.println(des.calculateError());
+        DoubleExponentialSmoothing des = desSmoothings.stream()
+                .sorted((o1, o2) -> ((Double)o1.calculateError()).compareTo((Double)o2.calculateError()))
+                .findFirst()
+                .get();
+        System.out.println("Lowest calculated error for DES: " + des.getCalculatedError() + " with smoothing factor " + des.getDataSmoothingFactor() + " and trend smoothing factor " + des.getTrendSmoothingFactor());
+        des.printPrediction();
 
         chart.getData().add(createSeries(ses.generateSmoothedValues(), "SES"));
         chart.getData().add(createSeries(des.generateSmoothedValues(), "DES"));
@@ -56,9 +64,8 @@ public class ChartController {
     }
 
     private XYChart.Series<Integer, Double> createSeries(Map<Integer, Double> values, String name){
-        XYChart.Series<Integer, Double> series = new XYChart.Series<>();
-        series.setName(name);
-        values.keySet().stream().forEach(k -> series.getData().add(new XYChart.Data<>(k, values.get(k))));
-        return series;
+        return new XYChart.Series<Integer, Double>(name, values.entrySet().stream()
+                .map(entry -> new XYChart.Data<Integer, Double>(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toCollection(() -> FXCollections.observableList(new LinkedList<>()))));
     }
 }
