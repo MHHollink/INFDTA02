@@ -27,7 +27,7 @@ public class Application<T> {
 
         GeneticAlgoritm<Individual<Byte>> algoritm = new GeneticAlgoritm<>(crossoverRate, mutationRate, elitsm, populationSize, iterations);
         Individual<Byte> solution = algoritm.Run(
-                () -> new Individual<Byte>((byte) r.nextInt(31)),
+                () -> new Individual<Byte>((byte) r.nextInt(32)),
                 (individual) -> {
                     double x = (Math.pow(-individual.getValue(), 2)+(7*individual.getValue()));
                     return x;
@@ -45,7 +45,16 @@ public class Application<T> {
 
                     return new Tuple<>(new Individual<>((byte) child1), new Individual<>((byte) child2));
                 },
-                (individual, mutationrate) -> individual
+                (individual, mutationrate) -> {
+                    Random rd = new Random();
+                    if(rd.nextDouble() < mutationrate){
+                        int mask = (1 << (rd.nextInt(5)+1)) - 1;
+                        int newIndividualValue = ~individual.getValue() & mask;
+                        return new Individual<Byte>((byte) newIndividualValue);
+                    } else {
+                        return individual;
+                    }
+                }
             );
 
         double avgFitness = 0;
