@@ -4,9 +4,11 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import nl.mehh.dta.assignment1.cluster.util.L;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,7 @@ public class App extends Application {
     private static Map<Integer, Double> data;
 
     public static void main(String[] args) {
-        data = parseFile("SwordForecasting.csv");
+        data = load("forecastingWalmart.csv");
 
         launch(args);
     }
@@ -44,28 +46,30 @@ public class App extends Application {
         stage.show();
     }
 
-    private static Map<Integer, Double> parseFile(String file) {
-        Map<Integer, Double> values = new HashMap<>();
+    public static Map<Integer, Double> load(String fileName) {
+        Map<Integer, Double> data = new HashMap<>();
         try {
-            try (
-                    Scanner scanner = new Scanner(
-                            new File(
-                                    App.class.getClassLoader()
-                                            .getResource(file).getFile()
-                                            .replaceAll("%20", " ")
-                            )
-                    )
-            ) {
-                int i = 0;
-                while (scanner.hasNextDouble()) {
-                    i++;
-                    values.put(i, Double.parseDouble(scanner.next()));
-                }
+            String file = App.class.getClassLoader().getResource(fileName).getFile().replaceAll("%20", " ");
+            Scanner fileScanner = new Scanner(new FileReader(file));
+            int row=0;
+            fileScanner.nextLine(); // Skip header
+            while (fileScanner.hasNextLine()) {
+
+                String line = fileScanner.nextLine();
+                String[] fields = line.split(",");
+
+                if((fields[0].equals("9")) && (fields[1].equals("20")))
+                    data.put(++row, Double.valueOf(fields[3]));
             }
         } catch (FileNotFoundException e) {
-            System.err.println("file not found");
+            e.printStackTrace();
+            System.exit(-1);
+        } catch (NullPointerException e) {
+            L.e(e, "Specified file could not be loaded, no file not found: '%s\\%s'",
+                    new File("src/main/resources").getAbsolutePath(), fileName);
+            System.exit(-1);
         }
-        return values;
+        return data;
     }
 
     public static Map<Integer, Double> getData() {

@@ -1,7 +1,7 @@
 package nl.mehh.dta.assignment1;
 
 import nl.mehh.dta.assignment1.cluster.data.Loader;
-import nl.mehh.dta.assignment1.cluster.kmeans.AbsClusteringAlgorithm;
+import nl.mehh.dta.assignment1.cluster.data.Point;
 import nl.mehh.dta.assignment1.cluster.kmeans.ClusteringStrategy;
 import nl.mehh.dta.assignment1.cluster.kmeans.Forgy;
 import nl.mehh.dta.assignment1.cluster.util.L;
@@ -9,7 +9,6 @@ import nl.mehh.dta.assignment1.cluster.util.Tuple;
 import nl.mehh.dta.assignment1.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class Assignment1 {
      * Key      = CustomerIdentifier
      * Value    = {@link WineDataVector}
      */
-    private Map<Integer, WineDataVector> data;
+    private List<Point> data;
 
     /**
      * Assignment1 entry point for the application.
@@ -71,7 +70,7 @@ public class Assignment1 {
      */
     public void init() {
         L.d("* Initiated");
-        data = Loader.load("WineData.csv");
+        data = Loader.load("a1.txt");
     }
 
     /**
@@ -82,8 +81,8 @@ public class Assignment1 {
 
         Forgy algorithm = new Forgy();
 
-        Tuple<Double, List<AbsClusteringAlgorithm.Observation>> observations = null;
-        List<Tuple<Double, List<AbsClusteringAlgorithm.Observation>>> ob = new ArrayList<>();
+        Tuple<Double, List<Point>> observations = null;
+        List<Tuple<Double, List<Point>>> ob = new ArrayList<>();
 
         for (int i = 0; i < iterations; i++) {
             ob.add(
@@ -95,30 +94,16 @@ public class Assignment1 {
             );
         }
 
-        for (Tuple<Double, List<AbsClusteringAlgorithm.Observation>> o : ob) {
+        for (Tuple<Double, List<Point>> o : ob) {
             if(observations == null || observations.getK()>o.getK())
                 observations = o;
         }
         L.i("Using cluster with SSE: %f", observations.getK());
 
 
-        Map<String, List<AbsClusteringAlgorithm.Observation> > sortedObservations = algorithm.sortObservations(observations.getV());
-        sortedObservations.keySet().forEach(cluster -> {
-            Map<Integer, Integer> count = new HashMap<>();
-            sortedObservations.get(cluster).forEach(observation ->
-                    observation.getData().getPoints().keySet().forEach(offer -> {
-                        if (observation.getData().hasTakenOffer(offer)) {
-                            count.put(
-                                    offer,
-                                    count.containsKey(offer) ?
-                                            count.get(offer) + 1 : 1
-                            );
-                        }
-                    })
-            );
-            count.keySet().forEach(offerKey -> {
-                L.i("[%s] OFFER %d -> bought %d times", cluster, offerKey, count.get(offerKey));
-            });
+        Map<String, List<Point> > sortedObservations = algorithm.sortObservations(observations.getV());
+        sortedObservations.forEach((key,list) -> {
+            L.i("[%s] : %s", key, list);
         });
     }
 
@@ -127,7 +112,7 @@ public class Assignment1 {
      * @return
      *      {@link Assignment1#data}
      */
-    public Map<Integer, WineDataVector> getData() {
+    public List<Point> getData() {
         return data;
     }
 }

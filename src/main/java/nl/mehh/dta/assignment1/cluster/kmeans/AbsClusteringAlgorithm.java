@@ -2,10 +2,10 @@ package nl.mehh.dta.assignment1.cluster.kmeans;
 
 
 import nl.mehh.dta.assignment1.Assignment1;
-import nl.mehh.dta.assignment1.cluster.util.CentroidColors;
+import nl.mehh.dta.assignment1.cluster.data.Centroid;
+import nl.mehh.dta.assignment1.cluster.data.Point;
 import nl.mehh.dta.assignment1.cluster.util.L;
 import nl.mehh.dta.assignment1.cluster.util.Tuple;
-import nl.mehh.dta.assignment1.cluster.vector.WineDataVector;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public abstract class AbsClusteringAlgorithm {
     /**
      * Getter to returns {@link Assignment1#data}
      */
-    protected Map<Integer, WineDataVector> getData() {
+    protected List<Point> getData() {
         return Assignment1.getInstance().getData();
     }
 
@@ -33,82 +33,64 @@ public abstract class AbsClusteringAlgorithm {
      * @return
      *      Tuple with SSE and Observations
      */
-    abstract protected Tuple<Double, List<Observation>> cluster(int k, int i);
+    abstract protected Tuple<Double, List<Point>> cluster(int k, int i);
 
     /**
      * Given all observations, set the linked centroid to the closest one.
      *
-     * @param observations a list containing all the {@link AbsClusteringAlgorithm.Observation}'s
+     * @param observations a list containing all the {@link Point}'s
      * @param centroids    a list containing all centroids
      */
-    protected void cluster(List<Observation> observations, List<Centroid> centroids) {
+    protected void cluster(List<Point> observations, List<Centroid> centroids) {
         L.t("clustering...");
-        observations.parallelStream().forEach(o -> o.setLinkedCentroid(getNearestCentroid(o, centroids)));
+        observations.forEach(o -> o.setLinked(getNearestCentroid(o, centroids)));
     }
 
-    protected boolean relocate(List<Observation> observations, List<Centroid> centroids) {
+    protected boolean relocate(List<Point> observations, List<Centroid> centroids) {
         L.t("relocating...");
         relocatedTimer++;
 
         List<Centroid> startingCentroidLocations = new ArrayList<>();
         for (Centroid centroid : centroids) {
-            Centroid newCentroid = new Centroid(centroid.color);
-            newCentroid.setCustomerIdentifier(centroid.getCustomerIdentifier());
-            Map<Integer, Double> points = new HashMap<>();
-
-            for (Map.Entry<Integer, Double> entry : centroid.getPoints().entrySet()) {
-                points.put(entry.getKey(), entry.getValue());
-            }
-            newCentroid.setPoints(points);
-
-            startingCentroidLocations.add(newCentroid);
+            startingCentroidLocations.add(new Centroid(centroid.getColor(), new Point(centroid.getX(), centroid.getY())));
         }
 
         // Cluster name, All observations in that cluster.
-        Map<String, List<Observation>> sortedObservations = sortObservations(observations);
+        Map<String, List<Point>> sortedObservations = sortObservations(observations);
 
+        // Move to center of cluster
         sortedObservations.keySet().forEach(key -> {
-            List<Observation> clusteredSetOfObservations = sortedObservations.get(key);
+            List<Point> clusteredSetOfObservations = sortedObservations.get(key);
 
-            // Offer id, All values.
-            Map<Integer, List<Double>> offers = new HashMap<>();
-            clusteredSetOfObservations.forEach(observation -> {
-                for (int i = 1; i <= observation.getData().getPoints().size(); i++) {
-                    if (!offers.containsKey(i))
-                        offers.put(i, new ArrayList<>());
-                    offers.get(i).add(observation.getData().getPoint(i));
-                }
-            });
+            double x = clusteredSetOfObservations.stream()
+                    .map(Point::getX).reduce(Double::sum).get() / clusteredSetOfObservations.size();
+            double y = clusteredSetOfObservations.stream()
+                    .map(Point::getY).reduce(Double::sum).get() / clusteredSetOfObservations.size();
 
-            Map<Integer, Double> averages = new HashMap<>();
-            offers.keySet().forEach(offer -> {
-                averages.put(offer, calculateAverage(offers.get(offer)));
-            });
-
-            centroids.stream().filter(c -> c.getColor().equals(key)).findFirst().get().setPoints(averages);
+            centroids.stream().filter(c -> c.getColor().name().equals(key)).findFirst().get().setPoint(x, y);
         });
 
         return centroids.stream()
                 .map(centroid ->
-                        new AbstractMap.SimpleEntry<>(centroid, startingCentroidLocations.stream()
-                                .filter(
-                                        cs -> cs.getColor().equals(centroid.getColor())
-                                )
-                                .findFirst().get()
-                                .getPoints().entrySet().stream()
-                                .anyMatch(
-                                        p -> p.getValue() != centroid.getPoint(p.getKey())
-                                )
+                        new AbstractMap.SimpleEntry<>(
+                                centroid,
+                                startingCentroidLocations.stream()
+                                        .filter(
+                                                cs -> cs.getColor().equals(centroid.getColor())
+                                        )
+                                        .anyMatch(
+                                                c -> c.getX() != centroid.getX() && c.getY() != centroid.getY()
+                                        )
                         )
                 )
                 .anyMatch(AbstractMap.SimpleEntry::getValue);
     }
 
-    public Map<String, List<Observation>> sortObservations(List<Observation> observations) {
-        Map<String, List<Observation>> sorted = new HashMap<>();
+    public Map<String, List<Point>> sortObservations(List<Point> observations) {
+        Map<String, List<Point>> sorted = new HashMap<>();
         observations.forEach(
                 observation -> {
-                    String cluster = observation.getLinkedCentroid().getColor();
+                    String cluster = observation.getLinked().getColor().name();
                     if (!sorted.containsKey(cluster)) {
                         sorted.put(cluster, new ArrayList<>());
                     }
@@ -128,19 +110,16 @@ public abstract class AbsClusteringAlgorithm {
      * @param centroids   a list of all centroids
      * @return returns the closest centroid
      */
-    private Centroid getNearestCentroid(Observation observation, List<Centroid> centroids) {
-        L.t("getting nearest for %d", observation.getData().getCustomerIdentifier());
+    private Centroid getNearestCentroid(Point observation, List<Centroid> centroids) {
         Double shortestDistance = null;
         Centroid closest = null;
-
         for (Centroid vector : centroids) {
-            double distance = calculateDistance(observation.getData(), vector);
+            double distance = calculateDistance(observation, vector);
             if (shortestDistance == null || shortestDistance > distance) {
                 shortestDistance = distance;
                 closest = vector;
             }
         }
-        L.t("nearest centroid for %d is [%s]", observation.getData().getCustomerIdentifier(), closest != null ? closest.getColor() : "NONE");
         return closest;
     }
 
@@ -151,67 +130,13 @@ public abstract class AbsClusteringAlgorithm {
      * @param b a single vector32 (centroid)
      * @return the distance between both vectors
      */
-    private double calculateDistance(WineDataVector a, Centroid b) {
-        double distance = 0;
-        for (Integer offerId : a.getPoints().keySet()) {
-            distance += Math.pow(a.getPoint(offerId) - b.getPoint(offerId), 2);
-        }
-        distance = Math.sqrt(distance);
-        return distance;
+    private double calculateDistance(Point a, Centroid b) {
+        return Math.sqrt(
+                Math.pow(b.getY() - a.getX(),2) + Math.pow(b.getY() - a.getY(),2)
+        );
     }
 
-    public class Observation {
-        public Centroid linkedCentroid;
-        public WineDataVector data;
-
-        public Observation(WineDataVector data) {
-            this.data = data;
-        }
-
-        public Centroid getLinkedCentroid() {
-            return linkedCentroid;
-        }
-
-        public void setLinkedCentroid(Centroid linkedCentroid) {
-            this.linkedCentroid = linkedCentroid;
-        }
-
-        public WineDataVector getData() {
-            return data;
-        }
-
-        @Override
-        public String toString() {
-            return "Observation{" +
-                    "linkedCentroid=" + linkedCentroid +
-                    ", data=" + data +
-                    '}';
-        }
+    protected double calculateError(Point o) {
+        return Math.pow(o.getX() - o.getLinked().getX(),2) + Math.pow(o.getY() - o.getLinked().getY(),2);
     }
-
-    public class Centroid extends WineDataVector {
-
-        private CentroidColors color;
-
-        public Centroid(CentroidColors color) {
-            super(0);
-            this.color = color;
-        }
-
-        public String getColor() {
-            return color != null ? color.name() : "NONE";
-        }
-
-        @Override
-        public String toString() {
-            return "Centroid{" +
-                    "color=" + color +
-                    "}";
-        }
-    }
-
-    protected double calculateError(Observation o) {
-        return calculateDistance(o.getData(), o.getLinkedCentroid());
-    }
-
 }

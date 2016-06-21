@@ -6,7 +6,7 @@ import nl.mehh.dta.assignment2.models.Tuple;
 
 import java.util.Random;
 
-public class Application<T> {
+public class Application {
     public static void main(String[] args) {
         double crossoverRate    = Double.parseDouble(args[0]);
         double mutationRate     = Double.parseDouble(args[1]);
@@ -18,7 +18,7 @@ public class Application<T> {
             return;
         }
 
-        Application<Byte> application = new Application<>();
+        Application application = new Application();
         application.start(crossoverRate, mutationRate, elitsm, populationSize, iterations);
     }
 
@@ -27,15 +27,10 @@ public class Application<T> {
 
         GeneticAlgoritm<Individual<Byte>> algoritm = new GeneticAlgoritm<>(crossoverRate, mutationRate, elitsm, populationSize, iterations);
         Individual<Byte> solution = algoritm.Run(
-                () -> new Individual<Byte>((byte) r.nextInt(32)),
-                (individual) -> {
-                    double x = (Math.pow(-individual.getValue(), 2)+(7*individual.getValue()));
-                    return x;
-                },
+                () -> new Individual<>((byte) r.nextInt(32)),
+                (individual) -> (Math.pow(-individual.getValue(), 2)+(7*individual.getValue())),
                 (individuals, fitnesses) ->
-                        () -> {
-                            return new Tuple<>(individuals.get(r.nextInt(individuals.size() - 1)), individuals.get(r.nextInt(individuals.size() - 1)));
-                        },
+                        () -> new Tuple<>(individuals.get(r.nextInt(individuals.size() - 1)), individuals.get(r.nextInt(individuals.size() - 1))),
                 tuple -> {
                     Byte byte1 = tuple.getKey().getValue();
                     Byte byte2 = tuple.getValue().getValue();
@@ -50,7 +45,7 @@ public class Application<T> {
                     if(rd.nextDouble() < mutationrate){
                         int mask = (1 << (rd.nextInt(5)+1)) - 1;
                         int newIndividualValue = ~individual.getValue() & mask;
-                        return new Individual<Byte>((byte) newIndividualValue);
+                        return new Individual<>((byte) newIndividualValue);
                     } else {
                         return individual;
                     }

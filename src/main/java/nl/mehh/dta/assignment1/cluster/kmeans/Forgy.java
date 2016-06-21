@@ -1,9 +1,10 @@
 package nl.mehh.dta.assignment1.cluster.kmeans;
 
+import nl.mehh.dta.assignment1.cluster.data.Centroid;
+import nl.mehh.dta.assignment1.cluster.data.Point;
 import nl.mehh.dta.assignment1.cluster.util.CentroidColors;
 import nl.mehh.dta.assignment1.cluster.util.L;
 import nl.mehh.dta.assignment1.cluster.util.Tuple;
-import nl.mehh.dta.assignment1.cluster.vector.WineDataVector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,56 +27,48 @@ public class Forgy extends AbsClusteringAlgorithm {
      *      ?
      */
     @Override
-    protected Tuple<Double, List<Observation>> cluster(int k, int i) {
+    protected Tuple<Double, List<Point>> cluster(int k, int i) {
         relocatedTimer = -1;
-        // List of all observations
-        List<Observation> observations = new ArrayList<>();
-        for(WineDataVector vector : getData().values()) {
-            observations.add(
-                    new Observation(
-                            vector
-                    )
-            );
-        }
-        L.t("created list of observations [%d]", observations.size());
 
-        Set<Observation> pickedObservations = new HashSet<>();
+        L.t("created list of observations [%d]", getData().size());
+
+        Set<Point> pickedObservations = new HashSet<>();
         // List of all centroids
         List<Centroid> centroids = new ArrayList<>(k);
         for (int j = 0; j < k; j++) {
-            Centroid centroid = new Centroid(CentroidColors.values()[centroids.size()]);
+            Centroid centroid = new Centroid(CentroidColors.values()[centroids.size()], new Point(0,0));
 
             boolean picked = false;
-            Observation observation = null;
+            Point observation = null;
             while (!picked) {
-                observation = observations.get(new Random().nextInt(observations.size()));
+                observation = getData().get(new Random().nextInt(getData().size()));
                 picked = !pickedObservations.contains(observation);
             }
             L.t("created centroid at [%s]", observation);
             pickedObservations.add(observation);
 
-            centroid.setPoints(observation.getData().getPoints());
+            centroid.setPoint(observation.getX(), observation.getY());
 
             centroids.add(centroid);
         }
         L.t("created list of centroids");
         L.t("%s", centroids);
 
-        cluster(observations, centroids); // Initial clustering
+        cluster(getData(), centroids); // Initial clustering
 
         int loops = 0;
-        while (relocate(observations, centroids)) {
-            cluster(observations, centroids);
+        while (relocate(getData(), centroids)) {
+            cluster(getData(), centroids);
             loops++;
 
             if(loops > i) break;
         }
 
-        double sse = observations.parallelStream().map(o -> Math.abs(calculateError(o))).reduce(Double::sum).get();
+        double sse = getData().parallelStream().map(o -> Math.abs(calculateError(o))).reduce(Double::sum).get();
         L.d("Done in %d iterations", relocatedTimer);
-        L.i("Calculated SSE: %f", sse);
+        L.d("Calculated SSE: %f", sse);
 
-        return new Tuple<>(sse, observations);
+        return new Tuple<>(sse, getData());
     }
 
 
